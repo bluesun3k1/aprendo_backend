@@ -45,7 +45,7 @@ class StudentSession extends Model
 
     public function activities(): BelongsToMany
     {
-        return $this->belongsToMany(Activity::class, 'session_activities')
+        return $this->belongsToMany(Activity::class, 'session_activities', 'session_id', 'activity_id')
             ->withPivot('order_index')
             ->orderBy('session_activities.order_index');
     }
