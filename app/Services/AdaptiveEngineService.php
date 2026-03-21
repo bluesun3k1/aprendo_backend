@@ -3,6 +3,7 @@
 namespace App\Services;
 
 use App\Models\Activity;
+use App\Models\Attempt;
 use App\Models\MasteryScore;
 use App\Models\Skill;
 use App\Models\Student;
@@ -45,10 +46,16 @@ class AdaptiveEngineService
             ->values()
             ->toArray();
 
+        $sequenceNumber = StudentSession::where('student_id', $student->id)
+            ->where('session_type', 'core')
+            ->count() + 1;
+
         $session = StudentSession::create([
             'student_id'                  => $student->id,
             'learning_path_id'            => $learningPath->id,
             'status'                      => 'pending',
+            'session_type'                => 'core',
+            'sequence_number'             => $sequenceNumber,
             'estimated_duration_minutes'  => $this->estimateDuration($activities),
             'domains'                     => $domains,
         ]);
@@ -202,6 +209,153 @@ class AdaptiveEngineService
         if ($score < 50) return 2;
         if ($score < 80) return 3;
         return 3;
+    }
+
+    // -----------------------------------------------------------------------
+    // Bonus sessions (§12 Option B)
+    // -----------------------------------------------------------------------
+
+    /**
+     * Generate (or return existing) a bonus session for a student.
+     * Called automatically when a core session is completed.
+     */
+    public function generateBonusSession(Student $student): StudentSession
+    {
+        // Return existing uncompleted bonus session (don't stack)
+        $existing = StudentSession::where('student_id', $student->id)
+            ->where('session_type', 'bonus')
+            ->whereIn('status', ['pending', 'in_progress'])
+            ->first();
+
+        if ($existing) {
+            return $existing;
+        }
+
+        $learningPath = $student->learningPath ?? LearningPath::create(['student_id' => $student->id]);
+
+        // Exclude activities the student answered correctly in the last 7 days
+        $recentlyCorrect = Attempt::where('student_id', $student->id)
+            ->where('correct', true)
+            ->where('created_at', '>=', now()->subDays(7))
+            ->pluck('activity_id')
+            ->unique()
+            ->all();
+
+        $masteryScores = MasteryScore::where('student_id', $student->id)
+            ->with('skill')
+            ->get()
+            ->keyBy('skill_id');
+
+        $activities = $this->selectBonusActivities($masteryScores, $recentlyCorrect);
+
+        $domains = $activities
+            ->map(fn ($a) => $a->skill->domain_id)
+            ->unique()
+            ->values()
+            ->toArray();
+
+        $session = StudentSession::create([
+            'student_id'                 => $student->id,
+            'learning_path_id'           => $learningPath->id,
+            'status'                     => 'pending',
+            'session_type'               => 'bonus',
+            'sequence_number'            => null,
+            'estimated_duration_minutes' => $this->estimateDuration($activities),
+            'domains'                    => $domains,
+        ]);
+
+        foreach ($activities as $index => $activity) {
+            SessionActivity::create([
+                'session_id'  => $session->id,
+                'activity_id' => $activity->id,
+                'order_index' => $index,
+            ]);
+        }
+
+        return $session;
+    }
+
+    /**
+     * 3-activity selection for bonus sessions:
+     * - Focus on weakest domains
+     * - Exclude recently-correct activities
+     * - Diversify by activity type
+     */
+    private function selectBonusActivities(Collection $masteryScores, array $excludeIds): Collection
+    {
+        $slots = 3;
+
+        if ($masteryScores->isEmpty()) {
+            return Activity::with('skill')
+                ->where('difficulty', 1)
+                ->where('is_active', true)
+                ->where('is_diagnostic', false)
+                ->whereNotIn('id', $excludeIds)
+                ->inRandomOrder()
+                ->take($slots)
+                ->get();
+        }
+
+        // Skill IDs from the 4 lowest mastery scores (covers ~2 domains)
+        $weakestSkillIds = $masteryScores->sortBy('score')->take(4)->pluck('skill_id');
+
+        $candidates = Activity::with('skill')
+            ->whereIn('skill_id', $weakestSkillIds)
+            ->where('is_active', true)
+            ->where('is_diagnostic', false)
+            ->whereNotIn('id', $excludeIds)
+            ->inRandomOrder()
+            ->take($slots * 4) // pull extra pool so type-diversity filter has room
+            ->get();
+
+        $activities = $this->diversifyByType($candidates, $slots);
+
+        // Fallback: pad from anywhere if weakest domains don't have enough
+        if ($activities->count() < $slots) {
+            $needed  = $slots - $activities->count();
+            $usedIds = $activities->pluck('id')->merge($excludeIds)->all();
+
+            $filler = Activity::with('skill')
+                ->where('is_active', true)
+                ->where('is_diagnostic', false)
+                ->whereNotIn('id', $usedIds)
+                ->inRandomOrder()
+                ->take($needed)
+                ->get();
+
+            $activities = $activities->merge($filler);
+        }
+
+        return $activities;
+    }
+
+    /**
+     * Shuffle activities so no two consecutive entries share the same type.
+     */
+    private function diversifyByType(Collection $activities, int $slots): Collection
+    {
+        $result   = collect();
+        $lastType = null;
+        $deferred = collect();
+
+        foreach ($activities as $activity) {
+            if ($result->count() >= $slots) break;
+
+            if ($activity->type !== $lastType) {
+                $result->push($activity);
+                $lastType = $activity->type;
+            } else {
+                $deferred->push($activity);
+            }
+        }
+
+        // Insert deferred items into remaining slots
+        foreach ($deferred as $activity) {
+            if ($result->count() >= $slots) break;
+            $result->push($activity);
+        }
+
+        return $result->take($slots);
     }
 
     private function estimateDuration(Collection $activities): int

@@ -37,6 +37,7 @@ class SessionController extends Controller
         // Per Note 3: always 200 with activities array (empty if none)
         return response()->json([
             'session_id'                 => $session->id,
+            'status'                     => $session->status,
             'estimated_duration_minutes' => $session->estimated_duration_minutes,
             'domains'                    => $session->domains ?? [],
             'activities'                 => $activities,
@@ -142,6 +143,11 @@ class SessionController extends Controller
 
         // Check for new badges
         $this->rewardService->checkAndAwardBadges($student->fresh());
+
+        // Auto-generate a bonus session when a core session is completed
+        if ($session->session_type === 'core') {
+            $this->adaptiveEngine->generateBonusSession($student->fresh());
+        }
 
         return response()->json([
             'success'     => true,

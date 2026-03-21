@@ -18,6 +18,8 @@ class StudentSession extends Model
         'student_id',
         'learning_path_id',
         'status',
+        'session_type',
+        'sequence_number',
         'estimated_duration_minutes',
         'domains',
         'completed_at',
@@ -27,9 +29,10 @@ class StudentSession extends Model
     protected function casts(): array
     {
         return [
-            'domains'      => 'array',
-            'completed_at' => 'datetime',
-            'xp_earned'    => 'integer',
+            'domains'         => 'array',
+            'completed_at'    => 'datetime',
+            'xp_earned'       => 'integer',
+            'sequence_number' => 'integer',
         ];
     }
 

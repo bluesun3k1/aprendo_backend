@@ -386,3 +386,254 @@ These are **non-breaking additive changes**. The frontend gracefully degrades:
 - Missing `image_url` on `illustrated_clue` → renders domain-color placeholder block
 
 Recommend deploying `lesson_mood` + `mission_title` + `mission_description` together in the first backend release, and `explanation` + `illustrated_clue` support in a follow-up since they require more content authoring effort.
+
+---
+
+## 11. Session `status` Field — **BLOCKING for correct UX**
+
+**Problem observed:** After a student completes a session and returns to the Session tab, `GET /student/session/today` returns the same session object again (even after the complete call). The frontend re-runs the session from scratch.
+
+**Fix required:** The session response **must include a `status` field**, and that field **must reflect the current completion state**:
+
+```json
+{
+  "session_id": "ses_today_001",
+  "status": "completed",
+  ...
+}
+```
+
+| Value | Meaning |
+|---|---|
+| `pending` | Session has not been started |
+| `in_progress` | Session started but not finalised |
+| `completed` | Student finished this session (`/complete` was called successfully) |
+
+The frontend now reads this field on every load. When `status == "completed"`, it shows a "¡Sesión completada!" screen instead of replaying the session. If the field is absent, the client defaults to `"pending"` (backwards-compatible), so no session will be skipped — but the student will see the session again.
+
+**Affected endpoint:** `GET /api/v1/student/session/today`
+
+---
+
+## 12. Additional Sessions (Extra Practice)  — **Backlog item for Phase 2**
+
+Currently the Session tab only surfaces one session per day (`/student/session/today`). Students who complete their daily session and want more practice have no pathway forward.
+
+**Proposed backend support:**
+
+### Option A: Extra practice on demand
+```
+GET /api/v1/student/session/extra
+```
+Returns a dynamically generated short session (3–5 activities) targeting the student's weakest domain. Returns `404` or `{"available": false}` if no extra practice is ready.
+
+### Option B: Session history
+```
+GET /api/v1/student/sessions?status=available&limit=5
+```
+Returns a list of sessions the student can play: today's (if pending), plus up to 4 additional practice packs.
+
+**Frontend display:** The Session tab will show a "Práctica extra" card below today's completed session card (similar to how the home tab shows domain progress). Already wired up to navigate to the session player — just needs the endpoint.
+
+**Content recommendations for extra sessions:**
+- Focus on the 1–2 domains with lowest `mastery_score`
+- Mix activity types (don't repeat the same type twice consecutively)
+- 3 activities max for extra sessions (vs 5 for daily)
+- Never repeat an activity the student answered correctly in the last 7 days
+
+---
+
+## 13. Session Queue Endpoint — **BLOCKING for session queue feature**
+
+### Product Decisions (confirmed March 2026)
+
+| # | Decision | Rule |
+|---|---|---|
+| 1 | **Core session ordering** | Strictly sequential — session N+1 is locked until session N is `completed`. |
+| 2 | **Bonus/review/practice ordering** | Always freely available — never locked. |
+| 3 | **Stacked incomplete sessions** | Oldest `in_progress` session = primary CTA ("Resume now"). Newer incomplete/pending sessions = secondary display ("Coming up"). Max 2 secondaries shown to avoid overwhelming the student. |
+
+These decisions are final and inform the schema below.
+
+---
+
+### New Endpoint
+
+```
+GET /api/v1/student/sessions
+```
+
+Replaces `GET /student/session/today`. Returns the student's full session queue: current, upcoming, completed (recent), and bonus sessions.
+
+---
+
+### Response Schema
+
+```json
+{
+  "current_session": "SessionQueueItem | null",
+  "next_sessions": "SessionQueueItem[]",
+  "completed_sessions": "SessionQueueItem[]",
+  "bonus_sessions": "SessionQueueItem[]"
+}
+```
+
+---
+
+### `SessionQueueItem` Field Reference
+
+| Field | Type | Required | Notes |
+|---|---|---|---|
+| `session_id` | `string` | Yes | Unique session identifier |
+| `title` | `string` | Yes | e.g., `"Sesión 3 · Comprensión y memoria"` |
+| `status` | `string` | Yes | `pending` \| `in_progress` \| `completed` |
+| `session_type` | `string` | Yes | `core` \| `bonus` \| `review` \| `practice` |
+| `sequence_number` | `integer \| null` | Yes for core | Position in the core track (1-indexed). `null` for non-core sessions. |
+| `estimated_duration_minutes` | `integer` | Yes | Shown in the UI session card |
+| `domains` | `string[]` | Yes | e.g., `["reading", "attention"]` |
+| `activities_completed` | `integer` | Yes | `0` if not started. Used to resume mid-session. |
+| `total_activities` | `integer` | Yes | Total activities in this session |
+| `is_resumable` | `boolean` | Yes | `true` when `status == "in_progress"` and `activities_completed > 0` |
+| `is_bonus` | `boolean` | Yes | `true` when `session_type != "core"` |
+| `unlocked` | `boolean` | Yes | `true` if the student can access this session. Core: only true when all previous core sessions are `completed`. Bonus/review/practice: always `true`. |
+| `completed_at` | `string \| null` | No | ISO 8601 datetime. Only present when `status == "completed"`. |
+
+---
+
+### Queue Cursor Rules (backend)
+
+1. **`current_session`** — always the **oldest** `in_progress` session first. If no `in_progress` exists, the next unlocked `pending` core session. If the student has 3 stacked incomplete sessions from missed days, the oldest one becomes `current_session`; the newer ones appear in `next_sessions`.
+2. **`next_sessions`** — next 1–3 sessions after `current_session` in the core sequence, regardless of lock state (student can see what's ahead). Include any newer stacked `in_progress` sessions here too (not in `completed_sessions`).
+3. **`completed_sessions`** — last 5 completed sessions, most recent first.
+4. **`bonus_sessions`** — all available `bonus` / `review` / `practice` sessions, always unlocked.
+
+### Locking Rules
+
+| Session type | Unlock condition |
+|---|---|
+| `core` | All core sessions with `sequence_number < N` must be `completed` |
+| `bonus` | Always unlocked (`unlocked: true`) |
+| `review` | Always unlocked |
+| `practice` | Always unlocked |
+
+---
+
+### Example Response
+
+```json
+{
+  "current_session": {
+    "session_id": "ses_core_003",
+    "title": "Sesión 3 · Comprensión y memoria",
+    "status": "in_progress",
+    "session_type": "core",
+    "sequence_number": 3,
+    "estimated_duration_minutes": 12,
+    "domains": ["reading", "attention"],
+    "activities_completed": 2,
+    "total_activities": 5,
+    "is_resumable": true,
+    "is_bonus": false,
+    "unlocked": true,
+    "completed_at": null
+  },
+  "next_sessions": [
+    {
+      "session_id": "ses_core_004",
+      "title": "Sesión 4 · Razonamiento y secuencias",
+      "status": "pending",
+      "session_type": "core",
+      "sequence_number": 4,
+      "estimated_duration_minutes": 10,
+      "domains": ["reasoning"],
+      "activities_completed": 0,
+      "total_activities": 5,
+      "is_resumable": false,
+      "is_bonus": false,
+      "unlocked": false,
+      "completed_at": null
+    }
+  ],
+  "completed_sessions": [
+    {
+      "session_id": "ses_core_002",
+      "title": "Sesión 2 · Inferencia y atención",
+      "status": "completed",
+      "session_type": "core",
+      "sequence_number": 2,
+      "estimated_duration_minutes": 12,
+      "domains": ["reading", "attention"],
+      "activities_completed": 5,
+      "total_activities": 5,
+      "is_resumable": false,
+      "is_bonus": false,
+      "unlocked": true,
+      "completed_at": "2026-03-20T15:42:00Z"
+    }
+  ],
+  "bonus_sessions": [
+    {
+      "session_id": "ses_bonus_001",
+      "title": "Práctica extra · Lectura rápida",
+      "status": "pending",
+      "session_type": "bonus",
+      "sequence_number": null,
+      "estimated_duration_minutes": 6,
+      "domains": ["reading"],
+      "activities_completed": 0,
+      "total_activities": 3,
+      "is_resumable": false,
+      "is_bonus": true,
+      "unlocked": true,
+      "completed_at": null
+    }
+  ]
+}
+```
+
+---
+
+### Individual Session Detail Endpoint
+
+When the player loads a session (new or resumed), it fetches full activity data:
+
+```
+GET /api/v1/student/sessions/{session_id}
+```
+
+The response must include `activities_completed` so the client can start the activity player at the correct index (skipping already-completed activities for resumed sessions).
+
+```json
+{
+  "session_id": "ses_core_003",
+  "status": "in_progress",
+  "session_type": "core",
+  "sequence_number": 3,
+  "activities_completed": 2,
+  "total_activities": 5,
+  "activities": [ "...full activity objects as in Section 7..." ]
+}
+```
+
+> The client will skip the first `activities_completed` items in the `activities` array and begin playback at that index.
+
+---
+
+### UX Rules (frontend reference)
+
+These rules are derived from the product decisions above and inform how the queue data maps to UI states:
+
+| Student state | Primary CTA | Secondary display |
+|---|---|---|
+| Has `in_progress` session | "Continuar sesión" (oldest `in_progress`) | Up to 2 newer sessions shown as "Próximamente" |
+| No `in_progress`, has unlocked `pending` core | "Iniciar sesión N" | Next 1–2 pending shown as "Próximamente" |
+| All core complete | "¡Lo lograste!" summary card | Bonus sessions shown prominently |
+| No sessions available | Empty state / check back screen | — |
+
+Bonus sessions are always shown below the core queue, never as the primary CTA unless all core sessions are complete.
+
+---
+
+### Deprecated Endpoint
+
+`GET /api/v1/student/session/today` is **deprecated** in favor of `GET /api/v1/student/sessions`. Keep serving it for backwards compatibility until the frontend migration is released. Coordinate deprecation timing with the frontend team.

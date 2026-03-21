@@ -8,6 +8,7 @@ use App\Http\Controllers\Student\ProfileController;
 use App\Http\Controllers\Student\ProgressController;
 use App\Http\Controllers\Student\RewardsController;
 use App\Http\Controllers\Student\SessionController;
+use App\Http\Controllers\Student\SessionQueueController;
 use App\Http\Controllers\Student\SkillMapController;
 use App\Http\Controllers\Teacher\StudentController as TeacherStudentController;
 use Illuminate\Support\Facades\Route;
@@ -38,10 +39,14 @@ Route::prefix('v1')->group(function () {
         Route::get('diagnostic',                                   [DiagnosticController::class, 'show']);
         Route::post('diagnostic/{diagnostic_id}/submit',           [DiagnosticController::class, 'submit']);
 
-        // Sessions
+        // Sessions — legacy single-session endpoint (kept for backwards compatibility)
         Route::get('session/today',                                [SessionController::class, 'today']);
         Route::post('session/{session_id}/attempts/bulk',          [SessionController::class, 'bulkAttempt']);
         Route::post('session/{session_id}/complete',               [SessionController::class, 'complete']);
+
+        // Sessions — queue (new)
+        Route::get('sessions',                                     [SessionQueueController::class, 'queue']);
+        Route::get('sessions/{session_id}',                        [SessionQueueController::class, 'show']);
 
         // Skill map
         Route::get('skill-map', [SkillMapController::class, 'index']);
