@@ -21,6 +21,9 @@ class Activity extends Model
         'correct_answer',
         'is_diagnostic',
         'is_active',
+        'lesson_mood',
+        'mission_title',
+        'mission_description',
     ];
 
     protected function casts(): array

@@ -71,15 +71,18 @@ class DiagnosticController extends Controller
     private function formatActivity(\App\Models\Activity $activity, string $locale): array
     {
         return [
-            'id'               => $activity->id,
-            'type'             => $activity->type,
-            'domain'           => $activity->skill->domain_id,
-            'skill_id'         => $activity->skill_id,
-            'skill_name'       => $activity->skill->name,
-            'difficulty'       => $activity->difficulty,
-            'instructions'     => $locale === 'es' ? $activity->instructions_es : $activity->instructions_en,
-            'duration_seconds' => $activity->duration_seconds,
-            'content'          => $activity->content,
+            'id'                  => $activity->id,
+            'type'                => $activity->type,
+            'domain'              => $activity->skill->domain_id,
+            'skill_id'            => $activity->skill_id,
+            'skill_name'          => $activity->skill->name,
+            'difficulty'          => $activity->difficulty,
+            'instructions'        => $locale === 'es' ? $activity->instructions_es : $activity->instructions_en,
+            'lesson_mood'         => $activity->lesson_mood,
+            'mission_title'       => $activity->mission_title,
+            'mission_description' => $activity->mission_description,
+            'duration_seconds'    => $activity->duration_seconds,
+            'content'             => $activity->content,
         ];
     }
 }
