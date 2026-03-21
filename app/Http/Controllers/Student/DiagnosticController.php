@@ -4,7 +4,6 @@ namespace App\Http\Controllers\Student;
 
 use App\Http\Controllers\Controller;
 use App\Models\Diagnostic;
-use App\Models\LearningPath;
 use App\Services\DiagnosticService;
 use App\Services\MasteryScoreService;
 use Illuminate\Http\JsonResponse;
@@ -46,9 +45,12 @@ class DiagnosticController extends Controller
         $request->validate([
             'attempts'                       => 'required|array|min:1',
             'attempts.*.activity_id'         => 'required|uuid',
-            'attempts.*.chosen_option_id'    => 'nullable|string',
+            'attempts.*.type'                => 'required|string',
+            'attempts.*.response'            => 'required|array',
             'attempts.*.response_time_ms'    => 'nullable|integer',
             'attempts.*.hints_used'          => 'nullable|integer',
+            'attempts.*.completed'           => 'nullable|boolean',
+            'attempts.*.is_correct'          => 'nullable|boolean',
         ]);
 
         $diagnostic = Diagnostic::where('id', $diagnosticId)
@@ -56,20 +58,14 @@ class DiagnosticController extends Controller
             ->where('status', 'pending')
             ->firstOrFail();
 
-        $masteryScores = $this->diagnosticService->processSubmission(
+        $this->diagnosticService->processSubmission(
             $student,
             $diagnostic,
             $request->attempts,
             $this->masteryService
         );
 
-        $learningPath = LearningPath::where('student_id', $student->id)->first();
-
-        return response()->json([
-            'mastery_scores'        => $masteryScores,
-            'learning_path_id'      => $learningPath?->id,
-            'diagnostic_completed'  => true,
-        ]);
+        return response()->json(['success' => true]);
     }
 
     private function formatActivity(\App\Models\Activity $activity, string $locale): array

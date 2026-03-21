@@ -21,10 +21,13 @@ class Student extends Model
         'pin',
         'grade',
         'age',
+        'age_band',
         'avatar_url',
         'is_active',
         'diagnostic_completed',
         'points_total',
+        'current_level',
+        'current_xp',
     ];
 
     protected $hidden = [
@@ -34,10 +37,12 @@ class Student extends Model
     protected function casts(): array
     {
         return [
-            'is_active'             => 'boolean',
-            'diagnostic_completed'  => 'boolean',
-            'age'                   => 'integer',
-            'points_total'          => 'integer',
+            'is_active'            => 'boolean',
+            'diagnostic_completed' => 'boolean',
+            'age'                  => 'integer',
+            'points_total'         => 'integer',
+            'current_level'        => 'integer',
+            'current_xp'           => 'integer',
         ];
     }
 

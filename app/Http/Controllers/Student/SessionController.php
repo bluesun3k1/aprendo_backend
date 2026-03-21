@@ -8,6 +8,7 @@ use App\Models\StudentSession;
 use App\Services\AdaptiveEngineService;
 use App\Services\MasteryScoreService;
 use App\Services\RewardService;
+use App\Services\XpService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 
@@ -17,6 +18,7 @@ class SessionController extends Controller
         private readonly AdaptiveEngineService $adaptiveEngine,
         private readonly MasteryScoreService $masteryService,
         private readonly RewardService $rewardService,
+        private readonly XpService $xpService,
     ) {}
 
     // -----------------------------------------------------------------------
@@ -24,82 +26,20 @@ class SessionController extends Controller
     // -----------------------------------------------------------------------
     public function today(Request $request): JsonResponse
     {
-        $student = $request->user();
-        $session = $this->adaptiveEngine->getTodaySession($student);
-        $locale  = app()->getLocale();
+        $student    = $request->user();
+        $session    = $this->adaptiveEngine->getTodaySession($student);
+        $locale     = app()->getLocale();
 
         $activities = $session->activities()->with('skill')->get()->map(
             fn ($a) => $this->formatActivity($a, $locale)
-        );
+        )->values();
 
+        // Per Note 3: always 200 with activities array (empty if none)
         return response()->json([
-            'session_id'                  => $session->id,
-            'estimated_duration_minutes'  => $session->estimated_duration_minutes,
-            'domains'                     => $session->domains ?? [],
-            'activities'                  => $activities,
-        ]);
-    }
-
-    // -----------------------------------------------------------------------
-    // POST /api/v1/student/session/{session_id}/attempt
-    // -----------------------------------------------------------------------
-    public function attempt(Request $request, string $sessionId): JsonResponse
-    {
-        $student = $request->user();
-
-        $request->validate([
-            'activity_id'     => 'required|uuid',
-            'type'            => 'required|string',
-            'response'        => 'required|array',
-            'response_time_ms'=> 'nullable|integer',
-            'hints_used'      => 'nullable|integer',
-            'completed'       => 'nullable|boolean',
-        ]);
-
-        $session = StudentSession::where('id', $sessionId)
-            ->where('student_id', $student->id)
-            ->firstOrFail();
-
-        $activity = \App\Models\Activity::with('skill')->findOrFail($request->activity_id);
-
-        // Mark session as in_progress
-        if ($session->status === 'pending') {
-            $session->update(['status' => 'in_progress']);
-        }
-
-        $evaluation   = $this->masteryService->evaluateAttempt($activity, $request->response);
-        $masteryUpdate = $this->masteryService->updateMastery(
-            $student,
-            $activity,
-            $evaluation['correct'],
-            $request->response_time_ms ?? 0
-        );
-
-        $scoreDelta = $masteryUpdate['new_score'] - ($masteryUpdate['new_score'] - ($evaluation['correct'] ? max(5, $activity->difficulty * 5) : -3));
-
-        $attempt = Attempt::create([
-            'student_id'       => $student->id,
-            'session_id'       => $session->id,
-            'activity_id'      => $activity->id,
-            'response'         => $request->response,
-            'correct'          => $evaluation['correct'],
-            'score_delta'      => $evaluation['correct'] ? $activity->difficulty * 5 : -3,
-            'feedback_text'    => $evaluation['feedback_text'],
-            'response_time_ms' => $request->response_time_ms ?? 0,
-            'hints_used'       => $request->hints_used ?? 0,
-            'completed'        => $request->completed ?? true,
-        ]);
-
-        return response()->json([
-            'attempt_id'           => $attempt->id,
-            'correct'              => $evaluation['correct'],
-            'score_delta'          => $attempt->score_delta,
-            'feedback_text'        => $evaluation['feedback_text'],
-            'mastery_score_updated' => [
-                'skill_id'  => $masteryUpdate['skill_id'],
-                'new_score' => $masteryUpdate['new_score'],
-                'trend'     => $masteryUpdate['trend'],
-            ],
+            'session_id'                 => $session->id,
+            'estimated_duration_minutes' => $session->estimated_duration_minutes,
+            'domains'                    => $session->domains ?? [],
+            'activities'                 => $activities,
         ]);
     }
 
@@ -118,6 +58,7 @@ class SessionController extends Controller
             'attempts.*.response_time_ms'     => 'nullable|integer',
             'attempts.*.hints_used'           => 'nullable|integer',
             'attempts.*.completed'            => 'nullable|boolean',
+            'attempts.*.is_correct'           => 'nullable|boolean',
             'attempts.*.client_timestamp'     => 'nullable|date',
         ]);
 
@@ -125,18 +66,20 @@ class SessionController extends Controller
             ->where('student_id', $student->id)
             ->firstOrFail();
 
-        $results = [];
+        if ($session->status === 'pending') {
+            $session->update(['status' => 'in_progress']);
+        }
 
         foreach ($request->attempts as $raw) {
-            $activity     = \App\Models\Activity::with('skill')->find($raw['activity_id']);
+            $activity = \App\Models\Activity::with('skill')->find($raw['activity_id']);
             if (!$activity) continue;
 
-            $evaluation   = $this->masteryService->evaluateAttempt($activity, $raw['response']);
-            $masteryUpdate = $this->masteryService->updateMastery(
+            $evaluation    = $this->masteryService->evaluateAttempt($activity, $raw['response']);
+            $this->masteryService->updateMastery(
                 $student, $activity, $evaluation['correct'], $raw['response_time_ms'] ?? 0
             );
 
-            $attempt = Attempt::create([
+            Attempt::create([
                 'student_id'       => $student->id,
                 'session_id'       => $session->id,
                 'activity_id'      => $activity->id,
@@ -149,21 +92,9 @@ class SessionController extends Controller
                 'completed'        => $raw['completed'] ?? true,
                 'client_timestamp' => $raw['client_timestamp'] ?? null,
             ]);
-
-            $results[] = [
-                'attempt_id'           => $attempt->id,
-                'correct'              => $evaluation['correct'],
-                'score_delta'          => $attempt->score_delta,
-                'feedback_text'        => $evaluation['feedback_text'],
-                'mastery_score_updated' => [
-                    'skill_id'  => $masteryUpdate['skill_id'],
-                    'new_score' => $masteryUpdate['new_score'],
-                    'trend'     => $masteryUpdate['trend'],
-                ],
-            ];
         }
 
-        return response()->json($results);
+        return response()->json(['success' => true]);
     }
 
     // -----------------------------------------------------------------------
@@ -186,42 +117,38 @@ class SessionController extends Controller
             'completed_at' => $request->completed_at ?? now(),
         ]);
 
-        // Compute summary
-        $attempts      = $session->attempts;
+        // Calculate XP
+        $attempts        = $session->attempts()->get();
         $totalActivities = $attempts->count();
-        $correctCount  = $attempts->where('correct', true)->count();
-        $accuracy      = $totalActivities > 0 ? round(($correctCount / $totalActivities) * 100) : 0;
-        $avgRtMs       = $totalActivities > 0 ? (int) $attempts->avg('response_time_ms') : 0;
-        $pointsEarned  = $attempts->sum('score_delta');
+        $correctCount    = $attempts->where('correct', true)->count();
+        $avgDifficulty   = $totalActivities > 0
+            ? $attempts->avg(fn ($a) => optional($a->activity)->difficulty ?? 2)
+            : 2.0;
 
-        // Update student total points
-        $student->increment('points_total', max(0, $pointsEarned));
+        $streak  = $this->rewardService->updateStreak($student);
+        $streakDays = $streak->current_streak;
 
-        // Rewards
-        $newBadges = $this->rewardService->recordSessionCompleted($student, $correctCount, $totalActivities);
-        $streak    = $student->fresh()->streak ?? $this->rewardService->updateStreak($student);
+        $xpToAward = $this->xpService->calculateSessionXp(
+            $correctCount,
+            $totalActivities,
+            (float) $avgDifficulty,
+            $streakDays
+        );
 
-        $badgesPayload = collect($newBadges)->map(fn ($b) => [
-            'id'          => $b->id,
-            'name'        => $b->name,
-            'description' => app()->getLocale() === 'es' ? $b->description_es : $b->description_en,
-            'icon_url'    => $b->icon_url,
-        ]);
+        $xpResult = $this->xpService->awardXp($student, $xpToAward);
+
+        // Store xp_earned on the session
+        $session->update(['xp_earned' => $xpResult['xp_awarded']]);
+
+        // Check for new badges
+        $this->rewardService->checkAndAwardBadges($student->fresh());
 
         return response()->json([
-            'session_summary' => [
-                'total_activities'       => $totalActivities,
-                'correct'                => $correctCount,
-                'accuracy_pct'           => $accuracy,
-                'average_response_time_ms' => $avgRtMs,
-                'domains_covered'        => $session->domains ?? [],
-                'points_earned'          => max(0, $pointsEarned),
-            ],
-            'badges_unlocked' => $badgesPayload,
-            'streak'          => [
-                'current' => $streak->current_streak ?? 0,
-                'best'    => $streak->best_streak ?? 0,
-            ],
+            'success'     => true,
+            'xp_awarded'  => $xpResult['xp_awarded'],
+            'new_level'   => $xpResult['new_level'],
+            'levelled_up' => $xpResult['levelled_up'],
+            'streak_days' => $streakDays,
         ]);
     }
 

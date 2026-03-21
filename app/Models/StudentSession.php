@@ -21,6 +21,7 @@ class StudentSession extends Model
         'estimated_duration_minutes',
         'domains',
         'completed_at',
+        'xp_earned',
     ];
 
     protected function casts(): array
@@ -28,6 +29,7 @@ class StudentSession extends Model
         return [
             'domains'      => 'array',
             'completed_at' => 'datetime',
+            'xp_earned'    => 'integer',
         ];
     }
 

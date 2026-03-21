@@ -24,16 +24,25 @@ class SkillMapController extends Controller
             ->keyBy('skill_id');
 
         $domains = SkillDomain::with('skills')->get()->map(function ($domain) use ($masteryScores, $locale) {
-            $skills = $domain->skills->map(function ($skill) use ($masteryScores, $locale) {
-                $ms = $masteryScores->get($skill->id);
+            $skills = $domain->skills->map(function ($skill) use ($masteryScores) {
+                $ms    = $masteryScores->get($skill->id);
+                $score = $ms?->score ?? 0;
+
+                $status = match (true) {
+                    $score >= 70 => 'strong',
+                    $score >= 40 => 'developing',
+                    $score > 0   => 'weak',
+                    default      => 'not_started',
+                };
 
                 return [
-                    'id'             => $skill->id,
-                    'name'           => $skill->name,
-                    'label'          => $locale === 'es' ? $skill->label_es : $skill->label_en,
-                    'mastery_score'  => $ms?->score ?? 0,
-                    'trend'          => $ms?->trend ?? 'stable',
-                    'last_practiced' => $ms?->last_practiced_at?->toDateString(),
+                    'id'               => $skill->id,
+                    'name'             => $skill->name,
+                    'mastery_score'    => $score,
+                    'status'           => $status,
+                    'last_practiced_at' => $ms?->last_practiced_at
+                        ? \Carbon\Carbon::parse($ms->last_practiced_at)->toIso8601String()
+                        : null,
                 ];
             });
 

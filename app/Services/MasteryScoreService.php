@@ -70,14 +70,24 @@ class MasteryScoreService
         $correct = $activity->correct_answer;
 
         return match ($activity->type) {
-            'multiple_choice' => isset($response['chosen_option_id'])
-                && $response['chosen_option_id'] === ($correct['correct_option_id'] ?? null),
+            // New contract: selected_option_id  (old: chosen_option_id — keep both for compat)
+            'multiple_choice' => (
+                isset($response['selected_option_id'])
+                    ? $response['selected_option_id']
+                    : ($response['chosen_option_id'] ?? null)
+            ) === ($correct['correct_option_id'] ?? null),
 
-            'drag_to_sort' => isset($response['zones'])
-                && $this->compareMaps($response['zones'], $correct['zones'] ?? []),
+            // New contract: placements: [{item_id, zone_id}]  (old: zones: {zone_id: [items]})
+            'drag_to_sort' => isset($response['placements'])
+                ? $this->comparePlacements($response['placements'], $correct['zones'] ?? [])
+                : (isset($response['zones']) && $this->compareMaps($response['zones'], $correct['zones'] ?? [])),
 
-            'tap_sequence' => isset($response['sequence'])
-                && $response['sequence'] === ($correct['sequence'] ?? []),
+            // New contract: tapped_ids: [ids]  (old: sequence: [ids])
+            'tap_sequence' => (
+                isset($response['tapped_ids'])
+                    ? $response['tapped_ids']
+                    : ($response['sequence'] ?? [])
+            ) === ($correct['sequence'] ?? []),
 
             default => false,
         };
@@ -114,6 +124,19 @@ class MasteryScoreService
         }
 
         return $base;
+    }
+
+    /**
+     * Convert [{item_id, zone_id}] placements into {zone_id: [item_ids]} map
+     * and compare against the correct zones map.
+     */
+    private function comparePlacements(array $placements, array $correctZones): bool
+    {
+        $built = [];
+        foreach ($placements as $p) {
+            $built[$p['zone_id']][] = $p['item_id'];
+        }
+        return $this->compareMaps($built, $correctZones);
     }
 
     private function compareMaps(array $submitted, array $correct): bool

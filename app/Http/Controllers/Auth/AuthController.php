@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\School;
 use App\Models\Student;
 use App\Models\User;
+use App\Services\XpService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
@@ -27,7 +28,7 @@ class AuthController extends Controller
         $school = School::where('school_code', $data['school_code'])->first();
 
         if (!$school) {
-            return response()->json(['message' => 'Invalid credentials.'], 401);
+            return response()->json(['error' => ['code' => 'INVALID_CREDENTIALS', 'message' => 'Invalid credentials.']], 401);
         }
 
         $student = Student::where('school_id', $school->id)
@@ -35,22 +36,23 @@ class AuthController extends Controller
             ->first();
 
         if (!$student || !Hash::check($data['pin'], $student->pin)) {
-            return response()->json(['message' => 'Invalid credentials.'], 401);
+            return response()->json(['error' => ['code' => 'INVALID_CREDENTIALS', 'message' => 'Invalid credentials.']], 401);
         }
 
         if (!$student->is_active) {
-            return response()->json(['message' => 'Account inactive.'], 403);
+            return response()->json(['error' => ['code' => 'ACCOUNT_INACTIVE', 'message' => 'Account inactive.']], 403);
         }
 
-        $token = $student->createToken('student-token')->plainTextToken;
+        $token   = $student->createToken('student-token')->plainTextToken;
+        $ageBand = $student->age_band ?? XpService::ageBandFromGrade($student->grade);
 
         return response()->json([
-            'token'      => $token,
-            'token_type' => 'Bearer',
-            'student'    => [
+            'token'   => $token,
+            'student' => [
                 'id'                   => $student->id,
                 'display_name'         => $student->display_name,
                 'grade'                => $student->grade,
+                'age_band'             => $ageBand,
                 'age'                  => $student->age,
                 'school_id'            => $school->id,
                 'school_name'          => $school->name,
@@ -73,19 +75,18 @@ class AuthController extends Controller
         $user = User::where('email', $data['email'])->first();
 
         if (!$user || !Hash::check($data['password'], $user->password)) {
-            return response()->json(['message' => 'Invalid credentials.'], 401);
+            return response()->json(['error' => ['code' => 'INVALID_CREDENTIALS', 'message' => 'Invalid credentials.']], 401);
         }
 
         if (!$user->is_active) {
-            return response()->json(['message' => 'Account inactive.'], 403);
+            return response()->json(['error' => ['code' => 'ACCOUNT_INACTIVE', 'message' => 'Account inactive.']], 403);
         }
 
         $token = $user->createToken('user-token')->plainTextToken;
 
         return response()->json([
-            'token'      => $token,
-            'token_type' => 'Bearer',
-            'user'       => [
+            'token' => $token,
+            'user'  => [
                 'id'        => $user->id,
                 'name'      => $user->name,
                 'email'     => $user->email,
@@ -102,6 +103,6 @@ class AuthController extends Controller
     {
         $request->user()->currentAccessToken()->delete();
 
-        return response()->json(['message' => 'Logged out.']);
+        return response()->json([]);
     }
 }

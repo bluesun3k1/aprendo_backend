@@ -85,7 +85,8 @@ class DiagnosticService
             $activity = Activity::with('skill')->find($attempt['activity_id']);
             if (!$activity) continue;
 
-            $response  = $attempt['response'] ?? ['chosen_option_id' => $attempt['chosen_option_id'] ?? null];
+            // New contract: response is always in 'response' wrapper
+            $response  = $attempt['response'] ?? [];
             $correct   = $masteryService->checkCorrectness($activity, $response);
             $rtMs      = $attempt['response_time_ms'] ?? 0;
 

@@ -40,7 +40,6 @@ Route::prefix('v1')->group(function () {
 
         // Sessions
         Route::get('session/today',                                [SessionController::class, 'today']);
-        Route::post('session/{session_id}/attempt',                [SessionController::class, 'attempt']);
         Route::post('session/{session_id}/attempts/bulk',          [SessionController::class, 'bulkAttempt']);
         Route::post('session/{session_id}/complete',               [SessionController::class, 'complete']);
 

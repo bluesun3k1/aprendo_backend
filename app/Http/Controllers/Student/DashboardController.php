@@ -6,81 +6,69 @@ use App\Http\Controllers\Controller;
 use App\Models\MasteryScore;
 use App\Models\SkillDomain;
 use App\Models\StudentSession;
+use App\Services\XpService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 
 class DashboardController extends Controller
 {
+    public function __construct(private readonly XpService $xpService) {}
+
     // -----------------------------------------------------------------------
     // GET /api/v1/student/dashboard
     // -----------------------------------------------------------------------
     public function index(Request $request): JsonResponse
     {
         $student = $request->user();
-        $student->loadMissing(['school', 'streak', 'studentBadges.badge']);
+        $student->loadMissing(['streak', 'studentBadges.badge']);
 
         $streak = $student->streak;
 
-        // Today's session (or most recently pending)
-        $todaySession = StudentSession::where('student_id', $student->id)
+        // Sessions completed today
+        $sessionsCompletedToday = StudentSession::where('student_id', $student->id)
             ->whereDate('created_at', today())
-            ->first();
+            ->where('status', 'completed')
+            ->count();
 
-        // Domain progress: average mastery per domain
+        // Domain progress
         $masteryScores = MasteryScore::where('student_id', $student->id)
             ->with('skill')
             ->get();
 
-        $domains = SkillDomain::all();
-
-        $domainProgress = $domains->map(function ($domain) use ($masteryScores) {
+        $domains = SkillDomain::all()->map(function ($domain) use ($masteryScores) {
             $domainScores = $masteryScores->filter(fn ($ms) => $ms->skill?->domain_id === $domain->id);
             $avg = $domainScores->isEmpty() ? 0 : (int) round($domainScores->avg('score'));
-            $trend = $this->dominantTrend($domainScores);
+
+            $lastAt = $domainScores->max('last_practiced_at');
 
             return [
-                'domain'           => $domain->id,
-                'overall_mastery'  => $avg,
-                'trend'            => $trend,
+                'id'             => $domain->id,
+                'mastery_score'  => $avg,
+                'last_activity_at' => $lastAt
+                    ? \Carbon\Carbon::parse($lastAt)->toIso8601String()
+                    : null,
             ];
         })->values();
 
-        // Last badge earned
+        // Most recently earned badge
         $lastStudentBadge = $student->studentBadges()->with('badge')->latest('earned_at')->first();
-        $lastBadge = $lastStudentBadge ? [
+        $recentBadge = $lastStudentBadge ? [
             'id'       => $lastStudentBadge->badge->id,
             'name'     => $lastStudentBadge->badge->name,
             'icon_url' => $lastStudentBadge->badge->icon_url,
         ] : null;
 
         return response()->json([
-            'student' => [
-                'id'           => $student->id,
-                'display_name' => $student->display_name,
-                'grade'        => $student->grade,
-                'school_name'  => $student->school?->name,
-            ],
-            'streak' => [
-                'current' => $streak?->current_streak ?? 0,
-                'best'    => $streak?->best_streak ?? 0,
-            ],
-            'today_session' => $todaySession ? [
-                'session_id'                 => $todaySession->id,
-                'estimated_duration_minutes' => $todaySession->estimated_duration_minutes,
-                'completed'                  => $todaySession->status === 'completed',
-                'domains'                    => $todaySession->domains ?? [],
-            ] : null,
-            'domain_progress' => $domainProgress,
-            'last_badge'      => $lastBadge,
-            'points_total'    => $student->points_total,
+            'student_id'               => $student->id,
+            'display_name'             => $student->display_name,
+            'streak_days'              => $streak?->current_streak ?? 0,
+            'sessions_completed_today' => $sessionsCompletedToday,
+            'sessions_goal_today'      => 1,
+            'current_level'            => $student->current_level ?? 1,
+            'current_xp'               => $student->current_xp ?? 0,
+            'xp_to_next_level'         => $this->xpService->xpToNextLevel($student->current_xp ?? 0),
+            'domains'                  => $domains,
+            'recent_badge'             => $recentBadge,
         ]);
-    }
-
-    private function dominantTrend($scores): string
-    {
-        if ($scores->isEmpty()) return 'stable';
-
-        $counts = $scores->countBy('trend');
-        return $counts->sortDesc()->keys()->first() ?? 'stable';
     }
 }
