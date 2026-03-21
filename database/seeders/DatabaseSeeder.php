@@ -15,6 +15,7 @@ class DatabaseSeeder extends Seeder
             BadgeSeeder::class,
             MissionSeeder::class,
             UserSeeder::class,
+            SessionSeeder::class,
         ]);
     }
 }
