@@ -16,6 +16,7 @@ class DatabaseSeeder extends Seeder
             MissionSeeder::class,
             UserSeeder::class,
             SessionSeeder::class,
+            SkillCmsSeeder::class,
         ]);
     }
 }

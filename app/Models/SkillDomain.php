@@ -21,4 +21,9 @@ class SkillDomain extends Model
     {
         return $this->hasMany(Skill::class, 'domain_id');
     }
+
+    public function milestones(): HasMany
+    {
+        return $this->hasMany(DomainMilestone::class, 'domain_id')->orderBy('sort_order')->orderBy('threshold');
+    }
 }

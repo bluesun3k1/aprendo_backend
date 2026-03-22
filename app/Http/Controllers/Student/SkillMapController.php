@@ -3,31 +3,15 @@
 namespace App\Http\Controllers\Student;
 
 use App\Http\Controllers\Controller;
+use App\Models\DomainMilestone;
 use App\Models\MasteryScore;
+use App\Models\ProgressSnapshot;
 use App\Models\SkillDomain;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 
 class SkillMapController extends Controller
 {
-    // Milestone definitions: [threshold (0-100), achievement name (es), achievement name (en), description (es), description (en)]
-    private const MILESTONES = [
-        'reading' => [
-            [40, 'Explorador de lectura',  'Reading Pathfinder',  'Sigue practicando comprensión para alcanzar este logro.',         'Keep practicing comprehension to reach this achievement.'],
-            [60, 'Navegante lector',        'Reading Navigator',   'Estás dominando la lectura. ¡Un poco más!',                       'You are mastering reading. Just a bit more!'],
-            [80, 'Maestro lector',          'Reading Master',      'Casi eres un maestro de la comprensión lectora.',                 'You are almost a reading comprehension master.'],
-        ],
-        'attention' => [
-            [40, 'Explorador de enfoque',  'Focus Explorer',      'Sigue entrenando tu atención para desbloquear esto.',             'Keep training your attention to unlock this.'],
-            [60, 'Guardián de atención',   'Attention Keeper',    '¡Tu enfoque está mejorando mucho!',                              'Your focus is improving a lot!'],
-            [80, 'Maestro de atención',    'Attention Master',    'Estás a punto de dominar la atención y el enfoque.',             'You are about to master attention and focus.'],
-        ],
-        'reasoning' => [
-            [40, 'Explorador lógico',       'Logic Explorer',      'Sigue resolviendo problemas para alcanzar este logro.',           'Keep solving problems to reach this achievement.'],
-            [60, 'Navegante lógico',        'Logic Pathfinder',    '¡Tu razonamiento está creciendo! Sigue así.',                    'Your reasoning is growing! Keep it up.'],
-            [80, 'Maestro del razonamiento','Reasoning Master',    'Estás muy cerca de dominar el pensamiento crítico.',             'You are very close to mastering critical thinking.'],
-        ],
-    ];
 
     // -----------------------------------------------------------------------
     // GET /api/v1/student/skill-map
@@ -42,24 +26,46 @@ class SkillMapController extends Controller
             ->get()
             ->keyBy('skill_id');
 
+        // Pre-load progress snapshots for recent_scores (avoids N+1)
+        $snapshots = ProgressSnapshot::where('student_id', $student->id)
+            ->orderBy('recorded_at', 'desc')
+            ->get()
+            ->groupBy('skill_id');
+
+        // Pre-load milestones from DB, grouped by domain_id
+        $milestones = DomainMilestone::orderBy('sort_order')->orderBy('threshold')->get()->groupBy('domain_id');
+
         // Build domain list with overall mastery scores
-        $domains = SkillDomain::with('skills')->get()->map(function ($domain) use ($masteryScores, $locale) {
-            $skills = $domain->skills->map(function ($skill) use ($masteryScores, $locale) {
+        $domains = SkillDomain::with('skills')->get()->map(function ($domain) use ($masteryScores, $snapshots, $locale) {
+            $skills = $domain->skills->map(function ($skill) use ($masteryScores, $snapshots, $locale) {
                 $ms    = $masteryScores->get($skill->id);
                 $score = $ms?->score ?? 0;
 
-                $status = match (true) {
+                $masteryLevel = match (true) {
                     $score >= 70 => 'strong',
                     $score >= 40 => 'developing',
                     $score > 0   => 'weak',
                     default      => 'not_started',
                 };
 
+                // Last 5 snapshot scores in chronological order (oldest → newest)
+                $recentScores = ($snapshots[$skill->id] ?? collect())
+                    ->take(5)
+                    ->pluck('mastery_score')
+                    ->reverse()
+                    ->values()
+                    ->toArray();
+
+                $skillLabel = $locale === 'es' ? $skill->label_es : $skill->label_en;
+
                 return [
                     'id'                => $skill->id,
-                    'name'              => $locale === 'es' ? $skill->label_es : $skill->label_en,
+                    'name'              => $skillLabel,
                     'mastery_score'     => $score,
-                    'status'            => $status,
+                    'mastery_level'     => $masteryLevel,
+                    'status'            => $masteryLevel, // kept for backward compat
+                    'recent_scores'     => $recentScores,
+                    'short_description' => $this->skillShortDescription($skillLabel, $masteryLevel, $locale),
                     'last_practiced_at' => $ms?->last_practiced_at
                         ? \Carbon\Carbon::parse($ms->last_practiced_at)->toIso8601String()
                         : null,
@@ -96,7 +102,7 @@ class SkillMapController extends Controller
         })->values();
 
         // next_unlock: find the domain/threshold the student is closest to completing
-        $nextUnlock = $this->computeNextUnlock($domains, $locale);
+        $nextUnlock = $this->computeNextUnlock($domains, $milestones);
 
         return response()->json([
             'student_level'          => $student->current_level ?? 1,
@@ -107,34 +113,36 @@ class SkillMapController extends Controller
     }
 
     // -----------------------------------------------------------------------
-    // Compute next_unlock
+    // Compute next_unlock from DB milestones
     // -----------------------------------------------------------------------
-    private function computeNextUnlock(iterable $domains, string $locale): ?array
+    private function computeNextUnlock(iterable $domains, \Illuminate\Support\Collection $milestones): ?array
     {
-        $best          = null;
-        $bestProgress  = -1.0;
+        $best         = null;
+        $bestProgress = -1.0;
 
         foreach ($domains as $domain) {
-            $domainId = $domain['id'];
-            $mastery  = $domain['overall_mastery'];
-            $milestones = self::MILESTONES[$domainId] ?? [];
+            $domainId        = $domain['id'];
+            $mastery         = $domain['overall_mastery'];
+            $domainMilestones = $milestones[$domainId] ?? collect();
 
-            foreach ($milestones as [$threshold, $nameEs, $nameEn, $descEs, $descEn]) {
-                if ($mastery >= $threshold) {
+            foreach ($domainMilestones as $milestone) {
+                if ($mastery >= $milestone->threshold) {
                     continue; // already unlocked
                 }
 
-                $progress = $threshold > 0 ? round($mastery / $threshold, 2) : 0.0;
+                $progress = $milestone->threshold > 0
+                    ? round($mastery / $milestone->threshold, 2)
+                    : 0.0;
 
                 if ($progress > $bestProgress) {
                     $bestProgress = $progress;
                     $best = [
-                        'name'        => $locale === 'es' ? $nameEs : $nameEn,
+                        'name'        => $milestone->name,
                         'progress'    => $progress,
-                        'description' => $locale === 'es' ? $descEs : $descEn,
+                        'description' => $milestone->description,
                     ];
                 }
-                break; // only consider the next unearned milestone per domain
+                break; // only the next unearned milestone per domain
             }
         }
 
@@ -202,6 +210,28 @@ class SkillMapController extends Controller
         }
 
         return $text;
+    }
+
+    // -----------------------------------------------------------------------
+    // Generate a short per-skill description for the skill list screen
+    // -----------------------------------------------------------------------
+    private function skillShortDescription(string $skillLabel, string $masteryLevel, string $locale): string
+    {
+        if ($locale === 'es') {
+            return match ($masteryLevel) {
+                'strong'      => "¡Dominas muy bien {$skillLabel}!",
+                'developing'  => "Tu habilidad de {$skillLabel} está creciendo.",
+                'weak'        => "Sigue practicando {$skillLabel} para avanzar.",
+                default       => "Explora {$skillLabel} para comenzar tu progreso.",
+            };
+        }
+
+        return match ($masteryLevel) {
+            'strong'      => "You have mastered {$skillLabel}!",
+            'developing'  => "Your {$skillLabel} skill is growing.",
+            'weak'        => "Keep practicing {$skillLabel} to move forward.",
+            default       => "Explore {$skillLabel} to begin your progress.",
+        };
     }
 }
 

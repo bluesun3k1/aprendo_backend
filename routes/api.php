@@ -9,6 +9,7 @@ use App\Http\Controllers\Student\ProgressController;
 use App\Http\Controllers\Student\RewardsController;
 use App\Http\Controllers\Student\SessionController;
 use App\Http\Controllers\Student\SessionQueueController;
+use App\Http\Controllers\Student\SkillDetailController;
 use App\Http\Controllers\Student\SkillMapController;
 use App\Http\Controllers\Teacher\StudentController as TeacherStudentController;
 use Illuminate\Support\Facades\Route;
@@ -46,10 +47,15 @@ Route::prefix('v1')->group(function () {
 
         // Sessions — queue (new)
         Route::get('sessions',                                     [SessionQueueController::class, 'queue']);
+        Route::get('sessions/{session_id}/skill-evidence',         [SkillDetailController::class, 'skillEvidence']);
         Route::get('sessions/{session_id}',                        [SessionQueueController::class, 'show']);
 
         // Skill map
         Route::get('skill-map', [SkillMapController::class, 'index']);
+
+        // Skill detail
+        Route::get('skills/{skill_id}/detail',                     [SkillDetailController::class, 'detail']);
+        Route::get('skills/{skill_id}/score-history',              [SkillDetailController::class, 'scoreHistory']);
 
         // Progress
         Route::get('progress', [ProgressController::class, 'index']);

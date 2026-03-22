@@ -6,6 +6,7 @@ use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 
 class Skill extends Model
 {
@@ -31,5 +32,10 @@ class Skill extends Model
     public function masteryScores(): HasMany
     {
         return $this->hasMany(MasteryScore::class);
+    }
+
+    public function content(): HasOne
+    {
+        return $this->hasOne(SkillContent::class);
     }
 }
