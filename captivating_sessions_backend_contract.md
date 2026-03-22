@@ -637,3 +637,86 @@ Bonus sessions are always shown below the core queue, never as the primary CTA u
 ### Deprecated Endpoint
 
 `GET /api/v1/student/session/today` is **deprecated** in favor of `GET /api/v1/student/sessions`. Keep serving it for backwards compatibility until the frontend migration is released. Coordinate deprecation timing with the frontend team.
+
+---
+
+## 14. Skill Map — `student_level` and `next_unlock` Fields
+
+**Endpoint:** `GET /api/v1/student/skill-map`  
+**Status:** Frontend implementing now (March 2026) — displaying with placeholder mock data until backend delivers.  
+**Type:** Additive, non-breaking — client handles missing fields gracefully.
+
+---
+
+### New Top-Level Fields
+
+| Field | Type | Required? | Notes |
+|---|---|---|---|
+| `student_level` | `integer` | Recommended | Student's current level. Shown in the "Level N" pill on the Current Focus card. Defaults to `1` when absent. |
+| `next_unlock` | `object \| null` | Recommended | Next achievement/milestone the student is working toward. Card is hidden when field is absent or null. |
+
+---
+
+### `next_unlock` Object Schema
+
+| Field | Type | Required | Notes |
+|---|---|---|---|
+| `name` | `string` | Yes | Display name of the achievement, e.g. `"Reading Pathfinder"` |
+| `progress` | `number` (0.0–1.0) | Yes | How far the student is toward unlocking. `0.66` = 66% |
+| `description` | `string` | Recommended | Short motivating sentence. Max ~120 chars. Shown below the progress bar. |
+
+---
+
+### Updated Response Example
+
+```json
+{
+  "student_level": 1,
+  "current_focus_domain_id": "reading",
+  "next_unlock": {
+    "name": "Reading Pathfinder",
+    "progress": 0.66,
+    "description": "Completa 2 actividades mas de lectura para desbloquear este logro."
+  },
+  "domains": [
+    {
+      "id": "reading",
+      "label": "Comprension lectora",
+      "overall_mastery": 36,
+      "is_current_focus": true,
+      "description": "Estas mejorando en encontrar ideas principales.",
+      "skills": [ "..." ]
+    }
+  ]
+}
+```
+
+---
+
+### What the frontend uses each field for
+
+| Field | UI location | Behavior when absent |
+|---|---|---|
+| `student_level` | "Level N" pill in the Current Focus dark card header | Defaults to `1` |
+| `next_unlock.name` | Title in the "Next unlock" white card below the domain list | Card hidden |
+| `next_unlock.progress` | Indigo–violet gradient progress bar in the unlock card | Card hidden |
+| `next_unlock.description` | Caption text below progress bar | Bar still shows; no caption |
+
+---
+
+### What determines `next_unlock`
+
+The backend should compute this based on the student's current mastery trajectory. Recommended logic:
+
+1. Find the domain with the highest `overall_mastery` that is **not yet at the next milestone threshold** (e.g., 40%, 60%, 80% thresholds).
+2. Identify the named achievement tied to that threshold (e.g., `"Reading Pathfinder"` unlocks at 40% reading mastery).
+3. Calculate `progress = current_mastery / threshold_mastery`.
+4. Return the achievement name + progress + a contextual description sentence.
+
+If no unlockable milestone exists (student has mastered everything), return `"next_unlock": null`.
+
+---
+
+### `current_focus_domain_id` — reminder
+
+Already implemented (March 2026). The client uses this to select which domain appears in the top dark card. The matching domain object in `domains[]` should also have `"is_current_focus": true` as a redundant signal. No changes required — documenting for completeness.
