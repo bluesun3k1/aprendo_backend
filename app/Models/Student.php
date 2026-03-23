@@ -22,6 +22,7 @@ class Student extends Model
         'grade',
         'age',
         'age_band',
+        'placement_band',
         'avatar_url',
         'is_active',
         'diagnostic_completed',

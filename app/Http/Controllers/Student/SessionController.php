@@ -144,17 +144,24 @@ class SessionController extends Controller
         // Check for new badges
         $this->rewardService->checkAndAwardBadges($student->fresh());
 
+        // Check for grade-band advancement
+        $freshStudent = $student->fresh();
+        $bandAdvanced = $this->adaptiveEngine->promoteBandIfReady($freshStudent);
+        $placementBand = $freshStudent->fresh()->placement_band;
+
         // Auto-generate a bonus session when a core session is completed
         if ($session->session_type === 'core') {
-            $this->adaptiveEngine->generateBonusSession($student->fresh());
+            $this->adaptiveEngine->generateBonusSession($freshStudent->fresh());
         }
 
         return response()->json([
-            'success'     => true,
-            'xp_awarded'  => $xpResult['xp_awarded'],
-            'new_level'   => $xpResult['new_level'],
-            'levelled_up' => $xpResult['levelled_up'],
-            'streak_days' => $streakDays,
+            'success'        => true,
+            'xp_awarded'     => $xpResult['xp_awarded'],
+            'new_level'      => $xpResult['new_level'],
+            'levelled_up'    => $xpResult['levelled_up'],
+            'streak_days'    => $streakDays,
+            'band_advanced'  => $bandAdvanced,
+            'placement_band' => $placementBand,
         ]);
     }
 

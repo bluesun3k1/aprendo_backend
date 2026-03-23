@@ -14,6 +14,7 @@ class Activity extends Model
         'skill_id',
         'type',
         'difficulty',
+        'grade_band',
         'instructions_es',
         'instructions_en',
         'duration_seconds',

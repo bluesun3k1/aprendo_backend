@@ -43,8 +43,14 @@ class AuthController extends Controller
             return response()->json(['error' => ['code' => 'ACCOUNT_INACTIVE', 'message' => 'Account inactive.']], 403);
         }
 
-        $token   = $student->createToken('student-token')->plainTextToken;
-        $ageBand = $student->age_band ?? XpService::ageBandFromGrade($student->grade);
+        $token    = $student->createToken('student-token')->plainTextToken;
+        $ageBand  = $student->age_band ?? XpService::ageBandFromGrade($student->grade);
+
+        // Bootstrap placement_band on first login if not yet set
+        if ($student->placement_band === null) {
+            $student->placement_band = XpService::ageBandFromGrade($student->grade);
+            $student->save();
+        }
 
         return response()->json([
             'token'   => $token,
@@ -53,6 +59,7 @@ class AuthController extends Controller
                 'display_name'         => $student->display_name,
                 'grade'                => $student->grade,
                 'age_band'             => $ageBand,
+                'placement_band'       => $student->placement_band,
                 'age'                  => $student->age,
                 'school_id'            => $school->id,
                 'school_name'          => $school->name,
