@@ -17,6 +17,7 @@ class DatabaseSeeder extends Seeder
             UserSeeder::class,
             SessionSeeder::class,
             SkillCmsSeeder::class,
+            CurriculumTrackSeeder::class,
         ]);
     }
 }

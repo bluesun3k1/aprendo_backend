@@ -8,6 +8,7 @@ use App\Models\StudentSession;
 use App\Services\AdaptiveEngineService;
 use App\Services\MasteryScoreService;
 use App\Services\RewardService;
+use App\Services\SessionQueueService;
 use App\Services\XpService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -16,9 +17,10 @@ class SessionController extends Controller
 {
     public function __construct(
         private readonly AdaptiveEngineService $adaptiveEngine,
-        private readonly MasteryScoreService $masteryService,
-        private readonly RewardService $rewardService,
-        private readonly XpService $xpService,
+        private readonly MasteryScoreService   $masteryService,
+        private readonly RewardService         $rewardService,
+        private readonly XpService             $xpService,
+        private readonly SessionQueueService   $sessionQueueService,
     ) {}
 
     // -----------------------------------------------------------------------
@@ -27,7 +29,7 @@ class SessionController extends Controller
     public function today(Request $request): JsonResponse
     {
         $student    = $request->user();
-        $session    = $this->adaptiveEngine->getTodaySession($student);
+        $session    = $this->sessionQueueService->getActiveSession($student);
         $locale     = app()->getLocale();
 
         $activities = $session->activities()->with('skill')->get()->map(
@@ -145,23 +147,24 @@ class SessionController extends Controller
         $this->rewardService->checkAndAwardBadges($student->fresh());
 
         // Check for grade-band advancement
-        $freshStudent = $student->fresh();
-        $bandAdvanced = $this->adaptiveEngine->promoteBandIfReady($freshStudent);
+        $freshStudent  = $student->fresh();
+        $bandAdvanced  = $this->adaptiveEngine->promoteBandIfReady($freshStudent);
         $placementBand = $freshStudent->fresh()->placement_band;
 
-        // Auto-generate a bonus session when a core session is completed
-        if ($session->session_type === 'core') {
-            $this->adaptiveEngine->generateBonusSession($freshStudent->fresh());
-        }
+        // Advance curriculum queue (marks queue item complete, checks unit mastery,
+        // unlocks next unit if threshold met, and refills upcoming sessions)
+        $queueResult = $this->sessionQueueService->onSessionComplete($session, $freshStudent->fresh());
 
         return response()->json([
-            'success'        => true,
-            'xp_awarded'     => $xpResult['xp_awarded'],
-            'new_level'      => $xpResult['new_level'],
-            'levelled_up'    => $xpResult['levelled_up'],
-            'streak_days'    => $streakDays,
-            'band_advanced'  => $bandAdvanced,
-            'placement_band' => $placementBand,
+            'success'            => true,
+            'xp_awarded'         => $xpResult['xp_awarded'],
+            'new_level'          => $xpResult['new_level'],
+            'levelled_up'        => $xpResult['levelled_up'],
+            'streak_days'        => $streakDays,
+            'band_advanced'      => $bandAdvanced,
+            'placement_band'     => $placementBand,
+            'unit_completed'     => $queueResult['unit_completed'],
+            'next_unit_unlocked' => $queueResult['next_unit_unlocked'],
         ]);
     }
 

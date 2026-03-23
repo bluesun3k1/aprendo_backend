@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\School;
 use App\Models\Student;
 use App\Models\User;
+use App\Services\PlacementService;
 use App\Services\XpService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -51,6 +52,9 @@ class AuthController extends Controller
             $student->placement_band = XpService::ageBandFromGrade($student->grade);
             $student->save();
         }
+
+        // Ensure the student has a curriculum track and active queue
+        app(PlacementService::class)->ensureTrackAssigned($student->fresh());
 
         return response()->json([
             'token'   => $token,

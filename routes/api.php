@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\Auth\AuthController;
+use App\Http\Controllers\Student\CurriculumController;
 use App\Http\Controllers\Student\DashboardController;
 use App\Http\Controllers\Student\DeviceTokenController;
 use App\Http\Controllers\Student\DiagnosticController;
@@ -49,6 +50,11 @@ Route::prefix('v1')->group(function () {
         Route::get('sessions',                                     [SessionQueueController::class, 'queue']);
         Route::get('sessions/{session_id}/skill-evidence',         [SkillDetailController::class, 'skillEvidence']);
         Route::get('sessions/{session_id}',                        [SessionQueueController::class, 'show']);
+
+        // Curriculum track, unit progress, session queue
+        Route::get('curriculum-track',                             [CurriculumController::class, 'track']);
+        Route::get('current-unit',                                 [CurriculumController::class, 'currentUnit']);
+        Route::get('session-queue',                                [CurriculumController::class, 'sessionQueue']);
 
         // Skill map
         Route::get('skill-map', [SkillMapController::class, 'index']);

@@ -98,4 +98,19 @@ class Student extends Model
     {
         return $this->hasMany(ProgressSnapshot::class);
     }
+
+    public function curriculumTracks(): HasMany
+    {
+        return $this->hasMany(StudentCurriculumTrack::class);
+    }
+
+    public function unitProgress(): HasMany
+    {
+        return $this->hasMany(StudentUnitProgress::class);
+    }
+
+    public function sessionQueue(): HasMany
+    {
+        return $this->hasMany(StudentSessionQueue::class);
+    }
 }
