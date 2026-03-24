@@ -12,6 +12,7 @@ class DomainSkillSeeder extends Seeder
         'reading'   => ['label_es' => 'Comprensión lectora',    'label_en' => 'Reading Comprehension'],
         'attention' => ['label_es' => 'Atención y enfoque',      'label_en' => 'Attention & Focus'],
         'reasoning' => ['label_es' => 'Pensamiento crítico',     'label_en' => 'Critical Thinking'],
+        'math'      => ['label_es' => 'Matemáticas',                'label_en' => 'Mathematics'],
     ];
 
     private array $skills = [
@@ -47,6 +48,25 @@ class DomainSkillSeeder extends Seeder
             ['name' => 'problem_solving',     'label_es' => 'Resolución de problemas',  'label_en' => 'Problem Solving'],
             ['name' => 'decision_making',     'label_es' => 'Toma de decisiones',       'label_en' => 'Decision Making'],
             ['name' => 'evidence_selection',  'label_es' => 'Selección de evidencia',   'label_en' => 'Evidence Selection'],
+        ],
+        'math' => [
+            ['name' => 'number_sense',            'label_es' => 'Sentido numérico',           'label_en' => 'Number Sense'],
+            ['name' => 'place_value',             'label_es' => 'Valor posicional',           'label_en' => 'Place Value'],
+            ['name' => 'addition_subtraction',    'label_es' => 'Suma y resta',               'label_en' => 'Addition & Subtraction'],
+            ['name' => 'geometry_basics',         'label_es' => 'Geometría básica',           'label_en' => 'Basic Geometry'],
+            ['name' => 'measurement',             'label_es' => 'Medición',                   'label_en' => 'Measurement'],
+            ['name' => 'patterns_sequences',      'label_es' => 'Patrones y secuencias',      'label_en' => 'Patterns & Sequences'],
+            ['name' => 'word_problems',           'label_es' => 'Problemas de palabras',      'label_en' => 'Word Problems'],
+            ['name' => 'data_interpretation',     'label_es' => 'Interpretación de datos',    'label_en' => 'Data Interpretation'],
+            ['name' => 'multiplication_division', 'label_es' => 'Multiplicación y división',  'label_en' => 'Multiplication & Division'],
+            ['name' => 'fractions',               'label_es' => 'Fracciones',                 'label_en' => 'Fractions'],
+            ['name' => 'decimals',                'label_es' => 'Decimales',                  'label_en' => 'Decimals'],
+            ['name' => 'percentages',             'label_es' => 'Porcentajes',                'label_en' => 'Percentages'],
+            ['name' => 'ratios_proportions',      'label_es' => 'Razones y proporciones',     'label_en' => 'Ratios & Proportions'],
+            ['name' => 'integers',                'label_es' => 'Números enteros',            'label_en' => 'Integers'],
+            ['name' => 'algebra_basics',          'label_es' => 'Álgebra básica',             'label_en' => 'Basic Algebra'],
+            ['name' => 'equations',               'label_es' => 'Ecuaciones',                 'label_en' => 'Equations'],
+            ['name' => 'statistics_basics',       'label_es' => 'Estadística básica',         'label_en' => 'Basic Statistics'],
         ],
     ];
 

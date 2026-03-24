@@ -32,15 +32,17 @@ class MasteryScoreService
      */
     public function updateMastery(Student $student, Activity $activity, bool $correct, int $responseTimeMs = 0): array
     {
+        // Mastery is scoped per student × skill × band — scores never bleed across bands
+        $band    = $activity->grade_band ?? ($student->placement_band ?? 'middle');
         $mastery = MasteryScore::firstOrCreate(
-            ['student_id' => $student->id, 'skill_id' => $activity->skill_id],
-            ['score' => 0, 'trend' => 'stable']
+            ['student_id' => $student->id, 'skill_id' => $activity->skill_id, 'grade_band' => $band],
+            ['score' => 0, 'trend' => 'stable', 'evidence_count' => 0, 'recent_accuracy' => 0]
         );
 
         $previousScore = $mastery->score;
 
         // Score delta based on difficulty and correctness
-        $delta = $this->calculateDelta($activity->difficulty, $correct, $responseTimeMs);
+        $delta    = $this->calculateDelta($activity->difficulty, $correct, $responseTimeMs);
         $newScore = max(0, min(100, $mastery->score + $delta));
 
         $trend = match (true) {
@@ -49,10 +51,19 @@ class MasteryScoreService
             default                        => 'stable',
         };
 
+        // Rolling accuracy: weighted average over the last 10 evidence points
+        $newEvidence    = $mastery->evidence_count + 1;
+        $recentAccuracy = (int) round(
+            ($mastery->recent_accuracy * min($mastery->evidence_count, 9) + ($correct ? 100 : 0))
+            / min($newEvidence, 10)
+        );
+
         $mastery->update([
             'score'             => $newScore,
             'trend'             => $trend,
             'last_practiced_at' => now(),
+            'evidence_count'    => $newEvidence,
+            'recent_accuracy'   => $recentAccuracy,
         ]);
 
         // Snapshot for progress history (once per day per domain)

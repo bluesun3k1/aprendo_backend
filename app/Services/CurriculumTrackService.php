@@ -54,6 +54,7 @@ class CurriculumTrackService
 
         $masteryScores = MasteryScore::where('student_id', $student->id)
             ->whereIn('skill_id', $unitSkills)
+            ->where('grade_band', $student->placement_band ?? 'middle')
             ->get();
 
         // Require a score for every skill in the unit before advancing

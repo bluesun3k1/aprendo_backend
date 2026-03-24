@@ -13,15 +13,20 @@ class MasteryScore extends Model
     protected $fillable = [
         'student_id',
         'skill_id',
+        'grade_band',
         'score',
         'trend',
         'last_practiced_at',
+        'evidence_count',
+        'recent_accuracy',
     ];
 
     protected function casts(): array
     {
         return [
             'score'             => 'integer',
+            'evidence_count'    => 'integer',
+            'recent_accuracy'   => 'integer',
             'last_practiced_at' => 'datetime',
         ];
     }

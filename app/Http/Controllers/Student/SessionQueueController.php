@@ -4,12 +4,17 @@ namespace App\Http\Controllers\Student;
 
 use App\Http\Controllers\Controller;
 use App\Models\StudentSession;
+use App\Services\SessionQueueService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Collection;
 
 class SessionQueueController extends Controller
 {
+    public function __construct(
+        private readonly SessionQueueService $sessionQueueService,
+    ) {}
+
     private const DOMAIN_LABELS = [
         'reading'   => 'Lectura',
         'attention' => 'Atención',
@@ -27,6 +32,12 @@ class SessionQueueController extends Controller
     public function queue(Request $request): JsonResponse
     {
         $student = $request->user();
+
+        // Ensure a session is provisioned before reading the queue.
+        // This makes GET /sessions a full drop-in replacement for GET /session/today:
+        // a student who hits this endpoint cold will have their first session built
+        // (from the curriculum blueprint or adaptive engine) before the list is returned.
+        $this->sessionQueueService->getActiveSession($student);
 
         if ($request->query('status') === 'available') {
             return $this->availableSessions($request, $student);

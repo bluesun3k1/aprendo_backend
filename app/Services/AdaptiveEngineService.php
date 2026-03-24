@@ -4,10 +4,12 @@ namespace App\Services;
 
 use App\Models\Activity;
 use App\Models\Attempt;
+use App\Models\CurriculumUnitSkill;
 use App\Models\MasteryScore;
 use App\Models\Skill;
 use App\Models\Student;
 use App\Models\StudentSession;
+use App\Models\StudentUnitProgress;
 use App\Models\LearningPath;
 use App\Models\SessionActivity;
 use Illuminate\Support\Collection;
@@ -32,13 +34,23 @@ class AdaptiveEngineService
         // Ensure learning path exists
         $learningPath = $student->learningPath ?? LearningPath::create(['student_id' => $student->id]);
 
-        // Get mastery scores indexed by skill_id
+        // Mastery reads are scoped to the current band and only unlocked skills.
+        // This prevents early-band scores from influencing middle-band activity
+        // selection, and prevents locked-unit skills from appearing in sessions.
+        $band             = $student->placement_band ?? 'middle';
+        $unlockedSkillIds = $this->getUnlockedSkillIds($student);
+
         $masteryScores = MasteryScore::where('student_id', $student->id)
+            ->where('grade_band', $band)
             ->with('skill')
             ->get()
+            ->when(
+                !empty($unlockedSkillIds),
+                fn ($c) => $c->filter(fn ($ms) => in_array($ms->skill_id, $unlockedSkillIds))
+            )
             ->keyBy('skill_id');
 
-        $activities = $this->selectActivities($student, $masteryScores);
+        $activities = $this->selectActivities($student, $masteryScores, $unlockedSkillIds);
 
         $domains = $activities
             ->map(fn ($a) => $a->skill->domain_id)
@@ -78,13 +90,13 @@ class AdaptiveEngineService
      * 30% on-level reinforcement
      * 20% stretch challenge
      */
-    private function selectActivities(Student $student, Collection $masteryScores): Collection
+    private function selectActivities(Student $student, Collection $masteryScores, array $unlockedSkillIds = []): Collection
     {
         $totalSlots = 6; // 3 + 2 + 1
 
-        $weakestActivities   = $this->getActivitiesForWeakestSkill($student, $masteryScores, 3);
-        $reinforceActivities = $this->getReinforcementActivities($student, $masteryScores, 2);
-        $stretchActivities   = $this->getStretchActivities($student, $masteryScores, 1);
+        $weakestActivities   = $this->getActivitiesForWeakestSkill($student, $masteryScores, 3, $unlockedSkillIds);
+        $reinforceActivities = $this->getReinforcementActivities($student, $masteryScores, 2, $unlockedSkillIds);
+        $stretchActivities   = $this->getStretchActivities($student, $masteryScores, 1, $unlockedSkillIds);
 
         return $weakestActivities
             ->merge($reinforceActivities)
@@ -99,19 +111,23 @@ class AdaptiveEngineService
     private function getActivitiesForWeakestSkill(
         Student $student,
         Collection $masteryScores,
-        int $count
+        int $count,
+        array $unlockedSkillIds = []
     ): Collection {
         $band = $student->placement_band ?? 'middle';
 
         if ($masteryScores->isEmpty()) {
-            return Activity::with('skill')
+            $q = Activity::with('skill')
                 ->where('difficulty', 1)
                 ->where('grade_band', $band)
                 ->where('is_active', true)
-                ->where('is_diagnostic', false)
-                ->inRandomOrder()
-                ->take($count)
-                ->get();
+                ->where('is_diagnostic', false);
+
+            if (!empty($unlockedSkillIds)) {
+                $q->whereIn('skill_id', $unlockedSkillIds);
+            }
+
+            return $q->inRandomOrder()->take($count)->get();
         }
 
         $weakest = $masteryScores->sortBy('score')->first();
@@ -135,19 +151,23 @@ class AdaptiveEngineService
     private function getReinforcementActivities(
         Student $student,
         Collection $masteryScores,
-        int $count
+        int $count,
+        array $unlockedSkillIds = []
     ): Collection {
         $band = $student->placement_band ?? 'middle';
 
         if ($masteryScores->isEmpty()) {
-            return Activity::with('skill')
+            $q = Activity::with('skill')
                 ->where('difficulty', 1)
                 ->where('grade_band', $band)
                 ->where('is_active', true)
-                ->where('is_diagnostic', false)
-                ->inRandomOrder()
-                ->take($count)
-                ->get();
+                ->where('is_diagnostic', false);
+
+            if (!empty($unlockedSkillIds)) {
+                $q->whereIn('skill_id', $unlockedSkillIds);
+            }
+
+            return $q->inRandomOrder()->take($count)->get();
         }
 
         $avgScore  = $masteryScores->avg('score');
@@ -175,19 +195,23 @@ class AdaptiveEngineService
     private function getStretchActivities(
         Student $student,
         Collection $masteryScores,
-        int $count
+        int $count,
+        array $unlockedSkillIds = []
     ): Collection {
         $band = $student->placement_band ?? 'middle';
 
         if ($masteryScores->isEmpty()) {
-            return Activity::with('skill')
+            $q = Activity::with('skill')
                 ->where('difficulty', 2)
                 ->where('grade_band', $band)
                 ->where('is_active', true)
-                ->where('is_diagnostic', false)
-                ->inRandomOrder()
-                ->take($count)
-                ->get();
+                ->where('is_diagnostic', false);
+
+            if (!empty($unlockedSkillIds)) {
+                $q->whereIn('skill_id', $unlockedSkillIds);
+            }
+
+            return $q->inRandomOrder()->take($count)->get();
         }
 
         $strongest = $masteryScores->sortByDesc('score')->first();
@@ -252,12 +276,20 @@ class AdaptiveEngineService
             ->unique()
             ->all();
 
+        $band             = $student->placement_band ?? 'middle';
+        $unlockedSkillIds = $this->getUnlockedSkillIds($student);
+
         $masteryScores = MasteryScore::where('student_id', $student->id)
+            ->where('grade_band', $band)
             ->with('skill')
             ->get()
+            ->when(
+                !empty($unlockedSkillIds),
+                fn ($c) => $c->filter(fn ($ms) => in_array($ms->skill_id, $unlockedSkillIds))
+            )
             ->keyBy('skill_id');
 
-        $activities = $this->selectBonusActivities($student, $masteryScores, $recentlyCorrect);
+        $activities = $this->selectBonusActivities($student, $masteryScores, $recentlyCorrect, $unlockedSkillIds);
 
         $domains = $activities
             ->map(fn ($a) => $a->skill->domain_id)
@@ -292,24 +324,37 @@ class AdaptiveEngineService
      * - Exclude recently-correct activities
      * - Diversify by activity type
      */
-    private function selectBonusActivities(Student $student, Collection $masteryScores, array $excludeIds): Collection
+    private function selectBonusActivities(Student $student, Collection $masteryScores, array $excludeIds, array $unlockedSkillIds = []): Collection
     {
         $slots = 3;
         $band  = $student->placement_band ?? 'middle';
 
         if ($masteryScores->isEmpty()) {
-            return Activity::with('skill')
+            $q = Activity::with('skill')
                 ->where('difficulty', 1)
                 ->where('grade_band', $band)
                 ->where('is_active', true)
                 ->where('is_diagnostic', false)
-                ->whereNotIn('id', $excludeIds)
-                ->inRandomOrder()
-                ->take($slots)
-                ->get();
+                ->whereNotIn('id', $excludeIds);
+
+            if (!empty($unlockedSkillIds)) {
+                $q->whereIn('skill_id', $unlockedSkillIds);
+            }
+
+            return $q->inRandomOrder()->take($slots)->get();
         }
 
+        // Mastery collection is already filtered to unlocked skills by caller.
+        // Intersect explicitly as a safety net.
         $weakestSkillIds = $masteryScores->sortBy('score')->take(4)->pluck('skill_id');
+
+        if (!empty($unlockedSkillIds)) {
+            $weakestSkillIds = $weakestSkillIds->filter(fn ($id) => in_array($id, $unlockedSkillIds));
+        }
+
+        if ($weakestSkillIds->isEmpty() && !empty($unlockedSkillIds)) {
+            $weakestSkillIds = collect($unlockedSkillIds);
+        }
 
         $candidates = Activity::with('skill')
             ->whereIn('skill_id', $weakestSkillIds)
@@ -323,21 +368,22 @@ class AdaptiveEngineService
 
         $activities = $this->diversifyByType($candidates, $slots);
 
-        // Fallback: pad from anywhere if weakest domains don't have enough
+        // Fallback: pad from anywhere in the unlocked pool if weakest skills don't have enough
         if ($activities->count() < $slots) {
             $needed  = $slots - $activities->count();
             $usedIds = $activities->pluck('id')->merge($excludeIds)->all();
 
-            $filler = Activity::with('skill')
+            $fq = Activity::with('skill')
                 ->where('grade_band', $band)
                 ->where('is_active', true)
                 ->where('is_diagnostic', false)
-                ->whereNotIn('id', $usedIds)
-                ->inRandomOrder()
-                ->take($needed)
-                ->get();
+                ->whereNotIn('id', $usedIds);
 
-            $activities = $activities->merge($filler);
+            if (!empty($unlockedSkillIds)) {
+                $fq->whereIn('skill_id', $unlockedSkillIds);
+            }
+
+            $activities = $activities->merge($fq->inRandomOrder()->take($needed)->get());
         }
 
         return $activities;
@@ -372,6 +418,30 @@ class AdaptiveEngineService
         return $result->take($slots);
     }
 
+    /**
+     * Return the skill IDs from units the student has unlocked (active or completed).
+     *
+     * An empty return means no curriculum track has been assigned yet — callers
+     * treat that as "no constraint" so the engine still works for students who
+     * pre-date the curriculum system.
+     */
+    public function getUnlockedSkillIds(Student $student): array
+    {
+        $unlockedUnitIds = StudentUnitProgress::where('student_id', $student->id)
+            ->whereIn('status', ['active', 'completed'])
+            ->pluck('curriculum_unit_id');
+
+        if ($unlockedUnitIds->isEmpty()) {
+            return [];
+        }
+
+        return CurriculumUnitSkill::whereIn('curriculum_unit_id', $unlockedUnitIds)
+            ->pluck('skill_id')
+            ->unique()
+            ->values()
+            ->all();
+    }
+
     private function estimateDuration(Collection $activities): int
     {
         // ~2 minutes per activity
@@ -394,7 +464,11 @@ class AdaptiveEngineService
             return false;
         }
 
-        $masteryScores = MasteryScore::where('student_id', $student->id)->get();
+        // Only count mastery earned within the current band — cross-band scores
+        // must not count toward advancement thresholds.
+        $masteryScores = MasteryScore::where('student_id', $student->id)
+            ->where('grade_band', $currentBand)
+            ->get();
 
         // Require at least 5 distinct practiced skills before promoting
         if ($masteryScores->count() < 5) {

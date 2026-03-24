@@ -7,6 +7,7 @@ use App\Models\CurriculumSession;
 use App\Models\CurriculumSessionItem;
 use App\Models\LearningPath;
 use App\Models\SessionActivity;
+use App\Models\Skill;
 use App\Models\Student;
 use App\Models\StudentSession;
 use App\Models\StudentSessionQueue;
@@ -33,11 +34,32 @@ class SessionBuilderService
             return $this->buildAdaptiveSession($student, $queueItem->session_kind);
         }
 
+        // Resolve the set of skills the student has unlocked in the curriculum.
+        // Used both as a guard in selectActivitiesForItem and as the fallback pool
+        // when a specific skill slot has no activities (e.g. sparse content bank).
+        $unlockedSkillIds = app(AdaptiveEngineService::class)->getUnlockedSkillIds($student);
+
         $activities = collect();
         $domains    = collect();
 
         foreach ($blueprint->items()->orderBy('sort_order')->get() as $item) {
-            $selected = $this->selectActivitiesForItem($item, $student, $band);
+            $selected = $this->selectActivitiesForItem($item, $student, $band, $unlockedSkillIds);
+
+            // Per-slot fallback: when the exact skill has no suitable activities
+            // (sparse content bank or locked skill), fill the slot from any unlocked
+            // skill in the same domain at the same difficulty range.
+            if ($selected->isEmpty() && $item->skill) {
+                $selected = $this->fillSlotFromDomain(
+                    $item->skill->domain_id,
+                    $band,
+                    $item->difficulty_min,
+                    $item->difficulty_max,
+                    $item->item_count,
+                    $unlockedSkillIds,
+                    $activities->pluck('id')->all()
+                );
+            }
+
             $activities = $activities->merge($selected);
             if ($item->skill) {
                 $domains->push($item->skill->domain_id);
@@ -78,10 +100,18 @@ class SessionBuilderService
     private function selectActivitiesForItem(
         CurriculumSessionItem $item,
         Student $student,
-        string $band
+        string $band,
+        array $unlockedSkillIds = []
     ): \Illuminate\Support\Collection {
+        // Guard: if curriculum unlock data is present and this skill belongs to a
+        // locked unit, return empty so the per-slot fallback can find an alternative.
+        if (!empty($unlockedSkillIds) && !in_array($item->skill_id, $unlockedSkillIds, true)) {
+            return collect();
+        }
+
         $mastery = \App\Models\MasteryScore::where('student_id', $student->id)
             ->where('skill_id', $item->skill_id)
+            ->where('grade_band', $band)
             ->value('score') ?? 0;
 
         $targetDiff = $item->selection_rule === 'adaptive'
@@ -113,6 +143,42 @@ class SessionBuilderService
         }
 
         return $activities;
+    }
+
+    /**
+     * Per-slot fallback: find activities from any unlocked skill in the given domain
+     * when the blueprint's specific skill has no suitable content.
+     */
+    private function fillSlotFromDomain(
+        string $domainId,
+        string $band,
+        int $diffMin,
+        int $diffMax,
+        int $count,
+        array $unlockedSkillIds,
+        array $excludeIds = []
+    ): \Illuminate\Support\Collection {
+        $domainSkillIds = Skill::where('domain_id', $domainId)->pluck('id')->all();
+
+        // Constrain to unlocked skills when the curriculum is active
+        if (!empty($unlockedSkillIds)) {
+            $domainSkillIds = array_values(array_intersect($domainSkillIds, $unlockedSkillIds));
+        }
+
+        if (empty($domainSkillIds)) {
+            return collect();
+        }
+
+        return Activity::with('skill')
+            ->whereIn('skill_id', $domainSkillIds)
+            ->whereBetween('difficulty', [$diffMin, $diffMax])
+            ->where('grade_band', $band)
+            ->where('is_active', true)
+            ->where('is_diagnostic', false)
+            ->whereNotIn('id', $excludeIds)
+            ->inRandomOrder()
+            ->take($count)
+            ->get();
     }
 
     private function adaptiveDifficulty(int $mastery, int $min, int $max): int
