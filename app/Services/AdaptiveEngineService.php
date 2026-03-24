@@ -101,10 +101,12 @@ class AdaptiveEngineService
         Collection $masteryScores,
         int $count
     ): Collection {
+        $band = $student->placement_band ?? 'middle';
+
         if ($masteryScores->isEmpty()) {
-            // No history — pull easy activities from all domains
             return Activity::with('skill')
                 ->where('difficulty', 1)
+                ->where('grade_band', $band)
                 ->where('is_active', true)
                 ->where('is_diagnostic', false)
                 ->inRandomOrder()
@@ -119,6 +121,7 @@ class AdaptiveEngineService
         return Activity::with('skill')
             ->where('skill_id', $skill->id)
             ->where('difficulty', $diff)
+            ->where('grade_band', $band)
             ->where('is_active', true)
             ->where('is_diagnostic', false)
             ->inRandomOrder()
@@ -134,9 +137,12 @@ class AdaptiveEngineService
         Collection $masteryScores,
         int $count
     ): Collection {
+        $band = $student->placement_band ?? 'middle';
+
         if ($masteryScores->isEmpty()) {
             return Activity::with('skill')
                 ->where('difficulty', 1)
+                ->where('grade_band', $band)
                 ->where('is_active', true)
                 ->where('is_diagnostic', false)
                 ->inRandomOrder()
@@ -144,9 +150,9 @@ class AdaptiveEngineService
                 ->get();
         }
 
-        $avgScore    = $masteryScores->avg('score');
-        $midScores   = $masteryScores->filter(fn ($ms) => abs($ms->score - $avgScore) < 20);
-        $skillIds    = $midScores->pluck('skill_id');
+        $avgScore  = $masteryScores->avg('score');
+        $midScores = $masteryScores->filter(fn ($ms) => abs($ms->score - $avgScore) < 20);
+        $skillIds  = $midScores->pluck('skill_id');
 
         if ($skillIds->isEmpty()) {
             $skillIds = $masteryScores->pluck('skill_id');
@@ -155,6 +161,7 @@ class AdaptiveEngineService
         return Activity::with('skill')
             ->whereIn('skill_id', $skillIds)
             ->where('difficulty', 2)
+            ->where('grade_band', $band)
             ->where('is_active', true)
             ->where('is_diagnostic', false)
             ->inRandomOrder()
@@ -170,9 +177,12 @@ class AdaptiveEngineService
         Collection $masteryScores,
         int $count
     ): Collection {
+        $band = $student->placement_band ?? 'middle';
+
         if ($masteryScores->isEmpty()) {
             return Activity::with('skill')
                 ->where('difficulty', 2)
+                ->where('grade_band', $band)
                 ->where('is_active', true)
                 ->where('is_diagnostic', false)
                 ->inRandomOrder()
@@ -187,6 +197,7 @@ class AdaptiveEngineService
         return Activity::with('skill')
             ->where('skill_id', $skill->id)
             ->where('difficulty', $diff)
+            ->where('grade_band', $band)
             ->where('is_active', true)
             ->where('is_diagnostic', false)
             ->inRandomOrder()
@@ -246,7 +257,7 @@ class AdaptiveEngineService
             ->get()
             ->keyBy('skill_id');
 
-        $activities = $this->selectBonusActivities($masteryScores, $recentlyCorrect);
+        $activities = $this->selectBonusActivities($student, $masteryScores, $recentlyCorrect);
 
         $domains = $activities
             ->map(fn ($a) => $a->skill->domain_id)
@@ -281,13 +292,15 @@ class AdaptiveEngineService
      * - Exclude recently-correct activities
      * - Diversify by activity type
      */
-    private function selectBonusActivities(Collection $masteryScores, array $excludeIds): Collection
+    private function selectBonusActivities(Student $student, Collection $masteryScores, array $excludeIds): Collection
     {
         $slots = 3;
+        $band  = $student->placement_band ?? 'middle';
 
         if ($masteryScores->isEmpty()) {
             return Activity::with('skill')
                 ->where('difficulty', 1)
+                ->where('grade_band', $band)
                 ->where('is_active', true)
                 ->where('is_diagnostic', false)
                 ->whereNotIn('id', $excludeIds)
@@ -296,16 +309,16 @@ class AdaptiveEngineService
                 ->get();
         }
 
-        // Skill IDs from the 4 lowest mastery scores (covers ~2 domains)
         $weakestSkillIds = $masteryScores->sortBy('score')->take(4)->pluck('skill_id');
 
         $candidates = Activity::with('skill')
             ->whereIn('skill_id', $weakestSkillIds)
+            ->where('grade_band', $band)
             ->where('is_active', true)
             ->where('is_diagnostic', false)
             ->whereNotIn('id', $excludeIds)
             ->inRandomOrder()
-            ->take($slots * 4) // pull extra pool so type-diversity filter has room
+            ->take($slots * 4)
             ->get();
 
         $activities = $this->diversifyByType($candidates, $slots);
@@ -316,6 +329,7 @@ class AdaptiveEngineService
             $usedIds = $activities->pluck('id')->merge($excludeIds)->all();
 
             $filler = Activity::with('skill')
+                ->where('grade_band', $band)
                 ->where('is_active', true)
                 ->where('is_diagnostic', false)
                 ->whereNotIn('id', $usedIds)
@@ -362,5 +376,38 @@ class AdaptiveEngineService
     {
         // ~2 minutes per activity
         return max(5, $activities->count() * 2);
+    }
+
+    /**
+     * Check if a student qualifies for band advancement.
+     * Requires ≥5 practiced skills with average mastery ≥80.
+     * Advances early→middle→upper. Returns true if band was advanced.
+     */
+    public function promoteBandIfReady(Student $student): bool
+    {
+        $bands        = ['early', 'middle', 'upper'];
+        $currentBand  = $student->placement_band ?? 'middle';
+        $currentIndex = array_search($currentBand, $bands, true);
+
+        // Already at max band
+        if ($currentIndex === false || $currentIndex >= count($bands) - 1) {
+            return false;
+        }
+
+        $masteryScores = MasteryScore::where('student_id', $student->id)->get();
+
+        // Require at least 5 distinct practiced skills before promoting
+        if ($masteryScores->count() < 5) {
+            return false;
+        }
+
+        if ($masteryScores->avg('score') < 80) {
+            return false;
+        }
+
+        $nextBand = $bands[$currentIndex + 1];
+        $student->update(['placement_band' => $nextBand]);
+
+        return true;
     }
 }

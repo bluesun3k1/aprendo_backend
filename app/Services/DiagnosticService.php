@@ -9,6 +9,7 @@ use App\Models\LearningPath;
 use App\Models\MasteryScore;
 use App\Models\Student;
 use Illuminate\Support\Str;
+use Illuminate\Support\Facades\DB;
 
 class DiagnosticService
 {
@@ -26,7 +27,7 @@ class DiagnosticService
             return $existing;
         }
 
-        $activities = $this->selectDiagnosticActivities();
+        $activities = $this->selectDiagnosticActivities($student->placement_band ?? 'middle');
 
         $diagnostic = Diagnostic::create([
             'student_id' => $student->id,
@@ -34,7 +35,7 @@ class DiagnosticService
         ]);
 
         foreach ($activities as $index => $activity) {
-            \DB::table('diagnostic_activities')->insert([
+            DB::table('diagnostic_activities')->insert([
                 'diagnostic_id' => $diagnostic->id,
                 'activity_id'   => $activity->id,
                 'order_index'   => $index,
@@ -47,7 +48,7 @@ class DiagnosticService
     /**
      * Select 3 activities per domain (one per difficulty 1/2/3) marked as diagnostic.
      */
-    private function selectDiagnosticActivities(): \Illuminate\Support\Collection
+    private function selectDiagnosticActivities(string $band): \Illuminate\Support\Collection
     {
         $domains    = ['reading', 'attention', 'reasoning'];
         $activities = collect();
@@ -56,6 +57,7 @@ class DiagnosticService
             foreach ([1, 2, 3] as $difficulty) {
                 $activity = Activity::whereHas('skill', fn ($q) => $q->where('domain_id', $domain))
                     ->where('difficulty', $difficulty)
+                    ->where('grade_band', $band)
                     ->where('is_diagnostic', true)
                     ->where('is_active', true)
                     ->inRandomOrder()

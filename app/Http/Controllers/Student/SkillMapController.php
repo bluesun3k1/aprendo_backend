@@ -105,10 +105,11 @@ class SkillMapController extends Controller
         $nextUnlock = $this->computeNextUnlock($domains, $milestones);
 
         return response()->json([
-            'student_level'          => $student->current_level ?? 1,
-            'current_focus_domain_id'=> $focusDomainId,
-            'next_unlock'            => $nextUnlock,
-            'domains'                => $domainsOut,
+            'student_level'           => $student->current_level ?? 1,
+            'placement_band'          => $student->placement_band ?? 'middle',
+            'current_focus_domain_id' => $focusDomainId,
+            'next_unlock'             => $nextUnlock,
+            'domains'                 => $domainsOut,
         ]);
     }
 

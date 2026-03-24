@@ -22,6 +22,7 @@ class Student extends Model
         'grade',
         'age',
         'age_band',
+        'placement_band',
         'avatar_url',
         'is_active',
         'diagnostic_completed',
@@ -96,5 +97,20 @@ class Student extends Model
     public function progressSnapshots(): HasMany
     {
         return $this->hasMany(ProgressSnapshot::class);
+    }
+
+    public function curriculumTracks(): HasMany
+    {
+        return $this->hasMany(StudentCurriculumTrack::class);
+    }
+
+    public function unitProgress(): HasMany
+    {
+        return $this->hasMany(StudentUnitProgress::class);
+    }
+
+    public function sessionQueue(): HasMany
+    {
+        return $this->hasMany(StudentSessionQueue::class);
     }
 }

@@ -6,14 +6,16 @@ use App\Http\Controllers\Controller;
 use App\Models\Diagnostic;
 use App\Services\DiagnosticService;
 use App\Services\MasteryScoreService;
+use App\Services\PlacementService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 
 class DiagnosticController extends Controller
 {
     public function __construct(
-        private readonly DiagnosticService $diagnosticService,
+        private readonly DiagnosticService   $diagnosticService,
         private readonly MasteryScoreService $masteryService,
+        private readonly PlacementService    $placementService,
     ) {}
 
     // -----------------------------------------------------------------------
@@ -64,6 +66,9 @@ class DiagnosticController extends Controller
             $request->attempts,
             $this->masteryService
         );
+
+        // Assign (or confirm) curriculum track now that we have diagnostic mastery data
+        $this->placementService->ensureTrackAssigned($student->fresh());
 
         return response()->json(['success' => true]);
     }

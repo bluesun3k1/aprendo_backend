@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\School;
 use App\Models\Student;
 use App\Models\User;
+use App\Services\PlacementService;
 use App\Services\XpService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -43,8 +44,17 @@ class AuthController extends Controller
             return response()->json(['error' => ['code' => 'ACCOUNT_INACTIVE', 'message' => 'Account inactive.']], 403);
         }
 
-        $token   = $student->createToken('student-token')->plainTextToken;
-        $ageBand = $student->age_band ?? XpService::ageBandFromGrade($student->grade);
+        $token    = $student->createToken('student-token')->plainTextToken;
+        $ageBand  = $student->age_band ?? XpService::ageBandFromGrade($student->grade);
+
+        // Bootstrap placement_band on first login if not yet set
+        if ($student->placement_band === null) {
+            $student->placement_band = XpService::ageBandFromGrade($student->grade);
+            $student->save();
+        }
+
+        // Ensure the student has a curriculum track and active queue
+        app(PlacementService::class)->ensureTrackAssigned($student->fresh());
 
         return response()->json([
             'token'   => $token,
@@ -53,6 +63,7 @@ class AuthController extends Controller
                 'display_name'         => $student->display_name,
                 'grade'                => $student->grade,
                 'age_band'             => $ageBand,
+                'placement_band'       => $student->placement_band,
                 'age'                  => $student->age,
                 'school_id'            => $school->id,
                 'school_name'          => $school->name,
