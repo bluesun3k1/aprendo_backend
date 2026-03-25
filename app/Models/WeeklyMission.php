@@ -18,13 +18,23 @@ class WeeklyMission extends Model
         'target',
         'mission_type',
         'is_active',
+        'category',
+        'domain_id',
+        'grade_band',
+        'reward_xp',
+        'difficulty',
+        'sort_order',
+        'is_repeatable',
     ];
 
     protected function casts(): array
     {
         return [
-            'is_active' => 'boolean',
-            'target'    => 'integer',
+            'is_active'    => 'boolean',
+            'target'       => 'integer',
+            'reward_xp'    => 'integer',
+            'sort_order'   => 'integer',
+            'is_repeatable' => 'boolean',
         ];
     }
 

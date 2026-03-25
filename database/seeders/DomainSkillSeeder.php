@@ -27,6 +27,7 @@ class DomainSkillSeeder extends Seeder
             ['name' => 'identifying_purpose','label_es' => 'Identificar el propósito',  'label_en' => 'Identifying Purpose'],
             ['name' => 'fact_vs_opinion',    'label_es' => 'Hecho vs. opinión',         'label_en' => 'Fact vs. Opinion'],
             ['name' => 'evaluating_evidence','label_es' => 'Evaluar evidencia',         'label_en' => 'Evaluating Evidence'],
+            ['name' => 'cause_effect',       'label_es' => 'Causa y efecto',            'label_en' => 'Cause & Effect'],
         ],
         'attention' => [
             ['name' => 'selective_attention',    'label_es' => 'Atención selectiva',         'label_en' => 'Selective Attention'],
@@ -67,6 +68,10 @@ class DomainSkillSeeder extends Seeder
             ['name' => 'algebra_basics',          'label_es' => 'Álgebra básica',             'label_en' => 'Basic Algebra'],
             ['name' => 'equations',               'label_es' => 'Ecuaciones',                 'label_en' => 'Equations'],
             ['name' => 'statistics_basics',       'label_es' => 'Estadística básica',         'label_en' => 'Basic Statistics'],
+            ['name' => 'multiplication',           'label_es' => 'Multiplicación',              'label_en' => 'Multiplication'],
+            ['name' => 'division',                 'label_es' => 'División',                    'label_en' => 'Division'],
+            ['name' => 'data_analysis',            'label_es' => 'Análisis de datos',           'label_en' => 'Data Analysis'],
+            ['name' => 'operations_with_decimals', 'label_es' => 'Operaciones con decimales',   'label_en' => 'Operations with Decimals'],
         ],
     ];
 

@@ -71,30 +71,80 @@ class RewardService
     }
 
     /**
-     * Update weekly mission progress.
+     * Update weekly mission progress after a session is completed.
+     *
+     * @param  Student  $student
+     * @param  int      $correctCount      Correct answers in this session
+     * @param  int      $totalActivities   Total activities in this session
+     * @param  array    $sessionDomains    Domain IDs present in this session
+     * @param  int      $streakDays        Current streak after the session
+     * @return array    Newly completed StudentMission models (with 'mission' relation loaded)
      */
-    private function updateMissions(Student $student): void
-    {
+    public function updateMissions(
+        Student $student,
+        int $correctCount = 0,
+        int $totalActivities = 0,
+        array $sessionDomains = [],
+        int $streakDays = 0
+    ): array {
         $weekStart = Carbon::now()->startOfWeek()->toDateString();
-
-        $missions = WeeklyMission::where('is_active', true)->get();
+        $missions  = WeeklyMission::where('is_active', true)->get();
+        $completed = [];
 
         foreach ($missions as $mission) {
-            if ($mission->mission_type !== 'sessions_completed') continue;
-
-            $studentMission = StudentMission::firstOrCreate(
-                ['student_id' => $student->id, 'mission_id' => $mission->id, 'week_start' => $weekStart],
+            $sm = StudentMission::firstOrCreate(
+                [
+                    'student_id' => $student->id,
+                    'mission_id' => $mission->id,
+                    'week_start' => $weekStart,
+                ],
                 ['progress' => 0, 'completed' => false]
             );
 
-            if ($studentMission->completed) continue;
+            if ($sm->completed) continue;
 
-            $studentMission->progress += 1;
-            if ($studentMission->progress >= $mission->target) {
-                $studentMission->completed = true;
+            switch ($mission->mission_type) {
+                case 'sessions_completed':
+                    $sm->progress += 1;
+                    break;
+
+                case 'correct_answers':
+                    $sm->progress += $correctCount;
+                    break;
+
+                case 'domain_sessions_completed':
+                    // Only counts if this session included the mission's target domain
+                    if (!empty($mission->domain_id) && in_array($mission->domain_id, $sessionDomains)) {
+                        $sm->progress += 1;
+                    }
+                    break;
+
+                case 'near_perfect_sessions':
+                    // Near-perfect = at most 1 wrong answer in a session with ≥1 activity
+                    if ($totalActivities > 0 && ($totalActivities - $correctCount) <= 1) {
+                        $sm->progress += 1;
+                    }
+                    break;
+
+                case 'streak_days':
+                    // Progress mirrors current streak value (not additive)
+                    $sm->progress = $streakDays;
+                    break;
+
+                default:
+                    continue 2; // skip unknown types
             }
-            $studentMission->save();
+
+            if ($sm->progress >= $mission->target) {
+                $sm->completed    = true;
+                $sm->completed_at = now();
+                $completed[]      = $sm->load('mission');
+            }
+
+            $sm->save();
         }
+
+        return $completed;
     }
 
     /**
@@ -129,16 +179,24 @@ class RewardService
         $streak   = $student->streak;
         $sessions = $student->sessions;
 
+        $completedSessions = $sessions->where('status', 'completed')->count();
+        $currentStreak    = $streak?->current_streak ?? 0;
+        $pointsTotal      = $student->points_total ?? 0;
+
         return match ($badge->trigger_type) {
-            'first_session'   => $sessions->count() >= 1,
-            'streak_3'        => ($streak?->current_streak ?? 0) >= 3,
-            'streak_5'        => ($streak?->current_streak ?? 0) >= 5,
-            'streak_10'       => ($streak?->current_streak ?? 0) >= 10,
-            'sessions_5'      => $sessions->where('status', 'completed')->count() >= 5,
-            'sessions_10'     => $sessions->where('status', 'completed')->count() >= 10,
-            'points_100'      => $student->points_total >= 100,
-            'points_500'      => $student->points_total >= 500,
-            default           => false,
+            'first_session' => $completedSessions >= 1,
+            'streak_3'      => $currentStreak >= 3,
+            'streak_5'      => $currentStreak >= 5,
+            'streak_10'     => $currentStreak >= 10,
+            'streak_20'     => $currentStreak >= 20,
+            'sessions_5'    => $completedSessions >= 5,
+            'sessions_10'   => $completedSessions >= 10,
+            'sessions_25'   => $completedSessions >= 25,
+            'sessions_50'   => $completedSessions >= 50,
+            'points_100'    => $pointsTotal >= 100,
+            'points_250'    => $pointsTotal >= 250,
+            'points_500'    => $pointsTotal >= 500,
+            default         => false,
         };
     }
 }

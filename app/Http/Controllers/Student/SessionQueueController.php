@@ -19,6 +19,7 @@ class SessionQueueController extends Controller
         'reading'   => 'Lectura',
         'attention' => 'Atención',
         'reasoning' => 'Razonamiento',
+        'math'      => 'Matemáticas',
         'memory'    => 'Memoria',
         'language'  => 'Lenguaje',
     ];

@@ -2,7 +2,6 @@
 
 namespace Database\Seeders;
 
-use App\Models\DomainMilestone;
 use App\Models\Skill;
 use App\Models\SkillContent;
 use Illuminate\Database\Seeder;
@@ -11,46 +10,7 @@ class SkillCmsSeeder extends Seeder
 {
     public function run(): void
     {
-        $this->seedMilestones();
         $this->seedSkillContents();
-    }
-
-    // -----------------------------------------------------------------------
-    // Domain unlock milestones
-    // -----------------------------------------------------------------------
-    private function seedMilestones(): void
-    {
-        DomainMilestone::truncate();
-
-        $milestones = [
-            'reading' => [
-                [40, 'Explorador de lectura',   'Sigue practicando comprensión para alcanzar este logro.',        1],
-                [60, 'Navegante lector',          'Estás dominando la lectura. ¡Un poco más!',                      2],
-                [80, 'Maestro lector',            'Casi eres un maestro de la comprensión lectora.',                3],
-            ],
-            'attention' => [
-                [40, 'Explorador de enfoque',    'Sigue entrenando tu atención para desbloquear esto.',            1],
-                [60, 'Guardián de atención',     '¡Tu enfoque está mejorando mucho!',                             2],
-                [80, 'Maestro de atención',      'Estás a punto de dominar la atención y el enfoque.',            3],
-            ],
-            'reasoning' => [
-                [40, 'Explorador lógico',        'Sigue resolviendo problemas para alcanzar este logro.',          1],
-                [60, 'Navegante lógico',         '¡Tu razonamiento está creciendo! Sigue así.',                   2],
-                [80, 'Maestro del razonamiento', 'Estás muy cerca de dominar el pensamiento crítico.',             3],
-            ],
-        ];
-
-        foreach ($milestones as $domainId => $rows) {
-            foreach ($rows as [$threshold, $name, $description, $sortOrder]) {
-                DomainMilestone::create([
-                    'domain_id'   => $domainId,
-                    'threshold'   => $threshold,
-                    'name'        => $name,
-                    'description' => $description,
-                    'sort_order'  => $sortOrder,
-                ]);
-            }
-        }
     }
 
     // -----------------------------------------------------------------------

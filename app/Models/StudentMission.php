@@ -18,14 +18,16 @@ class StudentMission extends Model
         'week_start',
         'progress',
         'completed',
+        'completed_at',
     ];
 
     protected function casts(): array
     {
         return [
-            'completed'  => 'boolean',
-            'progress'   => 'integer',
-            'week_start' => 'date',
+            'completed'    => 'boolean',
+            'progress'     => 'integer',
+            'week_start'   => 'date',
+            'completed_at' => 'datetime',
         ];
     }
 

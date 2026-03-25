@@ -127,12 +127,20 @@ class DashboardController extends Controller
             ->with('mission')
             ->get()
             ->map(fn ($sm) => [
-                'id'        => $sm->id,
-                'label'     => $locale === 'en' ? $sm->mission->label_en : $sm->mission->label_es,
-                'progress'  => $sm->progress,
-                'target'    => $sm->mission->target,
-                'completed' => $sm->completed,
+                'id'          => $sm->id,
+                'mission_id'  => $sm->mission_id,
+                'label'       => $locale === 'en' ? $sm->mission->label_en : $sm->mission->label_es,
+                'progress'    => $sm->progress,
+                'target'      => $sm->mission->target,
+                'completed'   => $sm->completed,
+                'completed_at' => $sm->completed_at?->toIso8601String(),
+                'category'    => $sm->mission->category,
+                'difficulty'  => $sm->mission->difficulty,
+                'reward_xp'   => $sm->mission->reward_xp,
+                'domain_id'   => $sm->mission->domain_id,
+                'sort_order'  => $sm->mission->sort_order,
             ])
+            ->sortBy('sort_order')
             ->values();
 
         return response()->json([

@@ -1,4 +1,4 @@
-<?php
+﻿<?php
 
 namespace Database\Seeders;
 
@@ -12,7 +12,7 @@ class ActivitySeeder extends Seeder
     public function run(): void
     {
         // ---------------------------------------------------------------
-        // DIAGNOSTIC — 9 activities per band (3 domains × 3 difficulties)
+        // DIAGNOSTIC â€” 9 activities per band (3 domains Ã— 3 difficulties)
         // + 3 math diagnostic activities per band
         // ---------------------------------------------------------------
         $this->insertActivities($this->earlyDiagnosticActivities(), true);
@@ -21,7 +21,7 @@ class ActivitySeeder extends Seeder
         $this->insertActivities($this->mathDiagnosticActivities(), true);
 
         // ---------------------------------------------------------------
-        // SESSION — 16 activities per band (6 reading, 5 attention, 5 reasoning)
+        // SESSION â€” 16 activities per band (6 reading, 5 attention, 5 reasoning)
         // ---------------------------------------------------------------
         $this->insertActivities($this->earlySessionActivities(), false);
         $this->insertActivities($this->middleSessionActivities(), false);
@@ -29,7 +29,7 @@ class ActivitySeeder extends Seeder
     }
 
     // -------------------------------------------------------------------
-    // Generic insert helper — skips duplicates per skill+difficulty+grade_band
+    // Generic insert helper â€” skips duplicates per skill+difficulty+grade_band
     // -------------------------------------------------------------------
     private function insertActivities(array $activities, bool $isDiagnostic): void
     {
@@ -69,7 +69,7 @@ class ActivitySeeder extends Seeder
     }
 
     // ===================================================================
-    // EARLY BAND — grades 1-2  (simple, concrete, short text)
+    // EARLY BAND â€” grades 1-2  (simple, concrete, short text)
     // ===================================================================
 
     private function earlyDiagnosticActivities(): array
@@ -78,16 +78,16 @@ class ActivitySeeder extends Seeder
             [
                 'domain' => 'reading', 'skill_name' => 'main_idea', 'difficulty' => 1, 'grade_band' => 'early',
                 'type' => 'multiple_choice',
-                'instructions_es' => 'Lee el texto y elige de qué trata.',
+                'instructions_es' => 'Lee el texto y elige de quÃ© trata.',
                 'instructions_en' => 'Read the text and choose what it is about.',
                 'content' => [
-                    'passage' => 'El gato duerme en el sofá. Le gusta descansar todo el día.',
-                    'question' => '¿De qué trata el texto?',
+                    'passage' => 'El gato duerme en el sofÃ¡. Le gusta descansar todo el dÃ­a.',
+                    'question' => 'Â¿De quÃ© trata el texto?',
                     'options' => [
-                        ['id' => 'a', 'text' => 'El sofá es suave', 'image_url' => null],
+                        ['id' => 'a', 'text' => 'El sofÃ¡ es suave', 'image_url' => null],
                         ['id' => 'b', 'text' => 'El gato descansa mucho', 'image_url' => null],
                         ['id' => 'c', 'text' => 'El gato come mucho', 'image_url' => null],
-                        ['id' => 'd', 'text' => 'El sofá es nuevo', 'image_url' => null],
+                        ['id' => 'd', 'text' => 'El sofÃ¡ es nuevo', 'image_url' => null],
                     ],
                 ],
                 'correct_answer' => ['correct_option_id' => 'b'],
@@ -98,13 +98,13 @@ class ActivitySeeder extends Seeder
                 'instructions_es' => 'Lee y elige lo que podemos saber.',
                 'instructions_en' => 'Read and choose what we can tell.',
                 'content' => [
-                    'passage' => 'Lucas se puso el abrigo y tomó su paraguas antes de salir.',
-                    'question' => '¿Qué tiempo hace afuera?',
+                    'passage' => 'Lucas se puso el abrigo y tomÃ³ su paraguas antes de salir.',
+                    'question' => 'Â¿QuÃ© tiempo hace afuera?',
                     'options' => [
                         ['id' => 'a', 'text' => 'Hace mucho sol', 'image_url' => null],
-                        ['id' => 'b', 'text' => 'Hace frío o llueve', 'image_url' => null],
+                        ['id' => 'b', 'text' => 'Hace frÃ­o o llueve', 'image_url' => null],
                         ['id' => 'c', 'text' => 'Hace mucho calor', 'image_url' => null],
-                        ['id' => 'd', 'text' => 'Está muy oscuro', 'image_url' => null],
+                        ['id' => 'd', 'text' => 'EstÃ¡ muy oscuro', 'image_url' => null],
                     ],
                 ],
                 'correct_answer' => ['correct_option_id' => 'b'],
@@ -112,11 +112,11 @@ class ActivitySeeder extends Seeder
             [
                 'domain' => 'reading', 'skill_name' => 'fact_vs_opinion', 'difficulty' => 3, 'grade_band' => 'early',
                 'type' => 'multiple_choice',
-                'instructions_es' => 'Elige la oración que es un hecho real.',
+                'instructions_es' => 'Elige la oraciÃ³n que es un hecho real.',
                 'instructions_en' => 'Choose the sentence that is a real fact.',
                 'content' => [
                     'passage' => null,
-                    'question' => '¿Cuál es un hecho verdadero?',
+                    'question' => 'Â¿CuÃ¡l es un hecho verdadero?',
                     'options' => [
                         ['id' => 'a', 'text' => 'Los perros son las mejores mascotas', 'image_url' => null],
                         ['id' => 'b', 'text' => 'El cielo es azul', 'image_url' => null],
@@ -133,7 +133,7 @@ class ActivitySeeder extends Seeder
                 'instructions_en' => 'Find the word that is not a fruit.',
                 'content' => [
                     'passage' => null,
-                    'question' => '¿Cuál no es una fruta?',
+                    'question' => 'Â¿CuÃ¡l no es una fruta?',
                     'options' => [
                         ['id' => 'a', 'text' => 'Naranja', 'image_url' => null],
                         ['id' => 'b', 'text' => 'Manzana', 'image_url' => null],
@@ -146,10 +146,10 @@ class ActivitySeeder extends Seeder
             [
                 'domain' => 'attention', 'skill_name' => 'instruction_following', 'difficulty' => 2, 'grade_band' => 'early',
                 'type' => 'tap_sequence',
-                'instructions_es' => 'Toca los animales del más pequeño al más grande.',
+                'instructions_es' => 'Toca los animales del mÃ¡s pequeÃ±o al mÃ¡s grande.',
                 'instructions_en' => 'Tap the animals from smallest to largest.',
                 'content' => [
-                    'instructions' => 'Toca los animales del más pequeño al más grande.',
+                    'instructions' => 'Toca los animales del mÃ¡s pequeÃ±o al mÃ¡s grande.',
                     'items' => [
                         ['id' => 'item_1', 'text' => 'Gato'],
                         ['id' => 'item_2', 'text' => 'Elefante'],
@@ -167,7 +167,7 @@ class ActivitySeeder extends Seeder
                 'instructions_en' => 'Find the different sequence.',
                 'content' => [
                     'passage' => null,
-                    'question' => '¿Cuál es diferente? AAB | AAB | AAB | ABA',
+                    'question' => 'Â¿CuÃ¡l es diferente? AAB | AAB | AAB | ABA',
                     'options' => [
                         ['id' => 'a', 'text' => 'Primera: AAB', 'image_url' => null],
                         ['id' => 'b', 'text' => 'Segunda: AAB', 'image_url' => null],
@@ -200,7 +200,7 @@ class ActivitySeeder extends Seeder
             [
                 'domain' => 'reasoning', 'skill_name' => 'patterns', 'difficulty' => 2, 'grade_band' => 'early',
                 'type' => 'multiple_choice',
-                'instructions_es' => 'Completa el patrón.',
+                'instructions_es' => 'Completa el patrÃ³n.',
                 'instructions_en' => 'Complete the pattern.',
                 'content' => [
                     'passage' => null,
@@ -222,9 +222,9 @@ class ActivitySeeder extends Seeder
                 'content' => [
                     'instructions' => 'Toca los eventos en el orden en que pasaron.',
                     'items' => [
-                        ['id' => 'item_1', 'text' => 'Se mojó'],
-                        ['id' => 'item_2', 'text' => 'Salió sin paraguas'],
-                        ['id' => 'item_3', 'text' => 'Empezó a llover'],
+                        ['id' => 'item_1', 'text' => 'Se mojÃ³'],
+                        ['id' => 'item_2', 'text' => 'SaliÃ³ sin paraguas'],
+                        ['id' => 'item_3', 'text' => 'EmpezÃ³ a llover'],
                     ],
                     'time_limit_seconds' => 30,
                 ],
@@ -240,16 +240,16 @@ class ActivitySeeder extends Seeder
             [
                 'domain' => 'reading', 'skill_name' => 'main_idea', 'difficulty' => 1, 'grade_band' => 'early',
                 'type' => 'multiple_choice',
-                'instructions_es' => 'Lee y elige de qué trata el texto.',
+                'instructions_es' => 'Lee y elige de quÃ© trata el texto.',
                 'instructions_en' => 'Read and choose what the text is about.',
                 'content' => [
                     'passage' => 'Los peces viven en el agua. Respiran con branquias y tienen aletas para nadar.',
-                    'question' => '¿De qué trata el texto?',
+                    'question' => 'Â¿De quÃ© trata el texto?',
                     'options' => [
                         ['id' => 'a', 'text' => 'Los peces comen mucho', 'image_url' => null],
                         ['id' => 'b', 'text' => 'Los peces viven en el agua y nadan con aletas', 'image_url' => null],
                         ['id' => 'c', 'text' => 'Las branquias son muy grandes', 'image_url' => null],
-                        ['id' => 'd', 'text' => 'El agua está fría', 'image_url' => null],
+                        ['id' => 'd', 'text' => 'El agua estÃ¡ frÃ­a', 'image_url' => null],
                     ],
                 ],
                 'correct_answer' => ['correct_option_id' => 'b'],
@@ -274,15 +274,15 @@ class ActivitySeeder extends Seeder
             [
                 'domain' => 'reading', 'skill_name' => 'supporting_details', 'difficulty' => 2, 'grade_band' => 'early',
                 'type' => 'multiple_choice',
-                'instructions_es' => 'Elige el detalle que habla sobre los pájaros.',
+                'instructions_es' => 'Elige el detalle que habla sobre los pÃ¡jaros.',
                 'instructions_en' => 'Choose the detail that tells us about birds.',
                 'content' => [
-                    'passage' => 'Los pájaros son animales especiales. Tienen plumas, ponen huevos y muchos pueden volar.',
-                    'question' => '¿Qué detalle nos dice que los pájaros son especiales?',
+                    'passage' => 'Los pÃ¡jaros son animales especiales. Tienen plumas, ponen huevos y muchos pueden volar.',
+                    'question' => 'Â¿QuÃ© detalle nos dice que los pÃ¡jaros son especiales?',
                     'options' => [
                         ['id' => 'a', 'text' => 'Tienen plumas y muchos pueden volar', 'image_url' => null],
                         ['id' => 'b', 'text' => 'Son muy ruidosos', 'image_url' => null],
-                        ['id' => 'c', 'text' => 'Viven en los árboles', 'image_url' => null],
+                        ['id' => 'c', 'text' => 'Viven en los Ã¡rboles', 'image_url' => null],
                         ['id' => 'd', 'text' => 'Son de muchos colores', 'image_url' => null],
                     ],
                 ],
@@ -294,10 +294,10 @@ class ActivitySeeder extends Seeder
                 'instructions_es' => 'Arrastra cada cosa al animal correcto.',
                 'instructions_en' => 'Drag each thing to the correct animal.',
                 'content' => [
-                    'instructions' => 'Arrastra cada característica al animal correcto.',
+                    'instructions' => 'Arrastra cada caracterÃ­stica al animal correcto.',
                     'items' => [
                         ['id' => 'item_1', 'text' => 'Ladra', 'image_url' => null],
-                        ['id' => 'item_2', 'text' => 'Maúlla', 'image_url' => null],
+                        ['id' => 'item_2', 'text' => 'MaÃºlla', 'image_url' => null],
                         ['id' => 'item_3', 'text' => 'Le gusta perseguir pelotas', 'image_url' => null],
                         ['id' => 'item_4', 'text' => 'Ronronea', 'image_url' => null],
                     ],
@@ -311,16 +311,16 @@ class ActivitySeeder extends Seeder
             [
                 'domain' => 'reading', 'skill_name' => 'inference', 'difficulty' => 3, 'grade_band' => 'early',
                 'type' => 'multiple_choice',
-                'instructions_es' => 'Lee y elige lo que está pasando.',
+                'instructions_es' => 'Lee y elige lo que estÃ¡ pasando.',
                 'instructions_en' => 'Read and choose what is happening.',
                 'content' => [
-                    'passage' => 'Sofía llegó a casa y vio un pastel con velas encendidas y muchos globos de colores.',
-                    'question' => '¿Qué está pasando en la casa de Sofía?',
+                    'passage' => 'SofÃ­a llegÃ³ a casa y vio un pastel con velas encendidas y muchos globos de colores.',
+                    'question' => 'Â¿QuÃ© estÃ¡ pasando en la casa de SofÃ­a?',
                     'options' => [
-                        ['id' => 'a', 'text' => 'Están limpiando la casa', 'image_url' => null],
-                        ['id' => 'b', 'text' => 'Es el cumpleaños de alguien', 'image_url' => null],
-                        ['id' => 'c', 'text' => 'Están decorando para Navidad', 'image_url' => null],
-                        ['id' => 'd', 'text' => 'Su mamá está cocinando', 'image_url' => null],
+                        ['id' => 'a', 'text' => 'EstÃ¡n limpiando la casa', 'image_url' => null],
+                        ['id' => 'b', 'text' => 'Es el cumpleaÃ±os de alguien', 'image_url' => null],
+                        ['id' => 'c', 'text' => 'EstÃ¡n decorando para Navidad', 'image_url' => null],
+                        ['id' => 'd', 'text' => 'Su mamÃ¡ estÃ¡ cocinando', 'image_url' => null],
                     ],
                 ],
                 'correct_answer' => ['correct_option_id' => 'b'],
@@ -328,16 +328,16 @@ class ActivitySeeder extends Seeder
             [
                 'domain' => 'reading', 'skill_name' => 'summarization', 'difficulty' => 3, 'grade_band' => 'early',
                 'type' => 'multiple_choice',
-                'instructions_es' => 'Elige la oración que mejor explica todo el texto.',
+                'instructions_es' => 'Elige la oraciÃ³n que mejor explica todo el texto.',
                 'instructions_en' => 'Choose the sentence that best explains the whole text.',
                 'content' => [
-                    'passage' => 'Las mariposas nacen de huevos. Luego se convierten en orugas que comen hojas. Después forman una crisálida. Finalmente, salen como mariposas coloridas.',
-                    'question' => '¿Cuál es el mejor resumen?',
+                    'passage' => 'Las mariposas nacen de huevos. Luego se convierten en orugas que comen hojas. DespuÃ©s forman una crisÃ¡lida. Finalmente, salen como mariposas coloridas.',
+                    'question' => 'Â¿CuÃ¡l es el mejor resumen?',
                     'options' => [
                         ['id' => 'a', 'text' => 'Las mariposas son coloridas', 'image_url' => null],
                         ['id' => 'b', 'text' => 'Las orugas comen muchas hojas', 'image_url' => null],
                         ['id' => 'c', 'text' => 'Las mariposas pasan por cuatro etapas para nacer', 'image_url' => null],
-                        ['id' => 'd', 'text' => 'Las crisálidas son muy duras', 'image_url' => null],
+                        ['id' => 'd', 'text' => 'Las crisÃ¡lidas son muy duras', 'image_url' => null],
                     ],
                 ],
                 'correct_answer' => ['correct_option_id' => 'c'],
@@ -346,15 +346,15 @@ class ActivitySeeder extends Seeder
             [
                 'domain' => 'attention', 'skill_name' => 'selective_attention', 'difficulty' => 1, 'grade_band' => 'early',
                 'type' => 'multiple_choice',
-                'instructions_es' => 'Elige el que no es un número.',
+                'instructions_es' => 'Elige el que no es un nÃºmero.',
                 'instructions_en' => 'Choose the one that is not a number.',
                 'content' => [
                     'passage' => null,
-                    'question' => '¿Cuál no es un número?',
+                    'question' => 'Â¿CuÃ¡l no es un nÃºmero?',
                     'options' => [
                         ['id' => 'a', 'text' => '3', 'image_url' => null],
                         ['id' => 'b', 'text' => '7', 'image_url' => null],
-                        ['id' => 'c', 'text' => 'Árbol', 'image_url' => null],
+                        ['id' => 'c', 'text' => 'Ãrbol', 'image_url' => null],
                         ['id' => 'd', 'text' => '5', 'image_url' => null],
                     ],
                 ],
@@ -363,16 +363,16 @@ class ActivitySeeder extends Seeder
             [
                 'domain' => 'attention', 'skill_name' => 'sustained_attention', 'difficulty' => 1, 'grade_band' => 'early',
                 'type' => 'tap_sequence',
-                'instructions_es' => 'Toca solo los círculos en el orden en que aparecen.',
+                'instructions_es' => 'Toca solo los cÃ­rculos en el orden en que aparecen.',
                 'instructions_en' => 'Tap only the circles in the order they appear.',
                 'content' => [
-                    'instructions' => 'Toca solo los círculos en el orden en que aparecen.',
+                    'instructions' => 'Toca solo los cÃ­rculos en el orden en que aparecen.',
                     'items' => [
-                        ['id' => 'item_1', 'text' => 'Círculo'],
+                        ['id' => 'item_1', 'text' => 'CÃ­rculo'],
                         ['id' => 'item_2', 'text' => 'Cuadrado'],
-                        ['id' => 'item_3', 'text' => 'Círculo'],
-                        ['id' => 'item_4', 'text' => 'Triángulo'],
-                        ['id' => 'item_5', 'text' => 'Círculo'],
+                        ['id' => 'item_3', 'text' => 'CÃ­rculo'],
+                        ['id' => 'item_4', 'text' => 'TriÃ¡ngulo'],
+                        ['id' => 'item_5', 'text' => 'CÃ­rculo'],
                     ],
                     'time_limit_seconds' => 20,
                 ],
@@ -384,10 +384,10 @@ class ActivitySeeder extends Seeder
                 'instructions_es' => 'Lee todo antes de responder.',
                 'instructions_en' => 'Read everything before answering.',
                 'content' => [
-                    'passage' => 'Si el semáforo está en rojo, para. Si está en verde, camina. Si está en amarillo, espera.',
-                    'question' => 'El semáforo está en amarillo. ¿Qué haces?',
+                    'passage' => 'Si el semÃ¡foro estÃ¡ en rojo, para. Si estÃ¡ en verde, camina. Si estÃ¡ en amarillo, espera.',
+                    'question' => 'El semÃ¡foro estÃ¡ en amarillo. Â¿QuÃ© haces?',
                     'options' => [
-                        ['id' => 'a', 'text' => 'Caminas rápido', 'image_url' => null],
+                        ['id' => 'a', 'text' => 'Caminas rÃ¡pido', 'image_url' => null],
                         ['id' => 'b', 'text' => 'Te detienes completamente', 'image_url' => null],
                         ['id' => 'c', 'text' => 'Esperas', 'image_url' => null],
                         ['id' => 'd', 'text' => 'Corres', 'image_url' => null],
@@ -398,11 +398,11 @@ class ActivitySeeder extends Seeder
             [
                 'domain' => 'attention', 'skill_name' => 'filtering_distractions', 'difficulty' => 2, 'grade_band' => 'early',
                 'type' => 'multiple_choice',
-                'instructions_es' => 'Usa solo la información que necesitas.',
+                'instructions_es' => 'Usa solo la informaciÃ³n que necesitas.',
                 'instructions_en' => 'Use only the information you need.',
                 'content' => [
-                    'passage' => 'Hay 5 manzanas en la mesa. También hay 3 naranjas, una jarra y 2 tazas.',
-                    'question' => '¿Cuántas frutas hay en total?',
+                    'passage' => 'Hay 5 manzanas en la mesa. TambiÃ©n hay 3 naranjas, una jarra y 2 tazas.',
+                    'question' => 'Â¿CuÃ¡ntas frutas hay en total?',
                     'options' => [
                         ['id' => 'a', 'text' => '5', 'image_url' => null],
                         ['id' => 'b', 'text' => '8', 'image_url' => null],
@@ -415,7 +415,7 @@ class ActivitySeeder extends Seeder
             [
                 'domain' => 'attention', 'skill_name' => 'speed_accuracy', 'difficulty' => 3, 'grade_band' => 'early',
                 'type' => 'tap_sequence',
-                'instructions_es' => 'Toca las letras en orden alfabético lo más rápido posible.',
+                'instructions_es' => 'Toca las letras en orden alfabÃ©tico lo mÃ¡s rÃ¡pido posible.',
                 'instructions_en' => 'Tap the letters in alphabetical order as fast as you can.',
                 'content' => [
                     'instructions' => 'Toca las letras en orden: A, B, C, D, E.',
@@ -471,16 +471,16 @@ class ActivitySeeder extends Seeder
             [
                 'domain' => 'reasoning', 'skill_name' => 'cause_effect', 'difficulty' => 2, 'grade_band' => 'early',
                 'type' => 'multiple_choice',
-                'instructions_es' => 'Elige qué pasará.',
+                'instructions_es' => 'Elige quÃ© pasarÃ¡.',
                 'instructions_en' => 'Choose what will happen.',
                 'content' => [
-                    'passage' => 'Pedro no estudió para el examen.',
-                    'question' => '¿Qué podría pasar?',
+                    'passage' => 'Pedro no estudiÃ³ para el examen.',
+                    'question' => 'Â¿QuÃ© podrÃ­a pasar?',
                     'options' => [
                         ['id' => 'a', 'text' => 'Saca una nota muy buena', 'image_url' => null],
                         ['id' => 'b', 'text' => 'Le va mal en el examen', 'image_url' => null],
-                        ['id' => 'c', 'text' => 'Su maestra está contenta', 'image_url' => null],
-                        ['id' => 'd', 'text' => 'Aprende mucho ese día', 'image_url' => null],
+                        ['id' => 'c', 'text' => 'Su maestra estÃ¡ contenta', 'image_url' => null],
+                        ['id' => 'd', 'text' => 'Aprende mucho ese dÃ­a', 'image_url' => null],
                     ],
                 ],
                 'correct_answer' => ['correct_option_id' => 'b'],
@@ -491,12 +491,12 @@ class ActivitySeeder extends Seeder
                 'instructions_es' => 'Lee y elige lo que podemos concluir.',
                 'instructions_en' => 'Read and choose what we can conclude.',
                 'content' => [
-                    'passage' => 'Todos los niños de la clase tienen mochila. Juan es un niño de la clase.',
-                    'question' => '¿Qué podemos concluir?',
+                    'passage' => 'Todos los niÃ±os de la clase tienen mochila. Juan es un niÃ±o de la clase.',
+                    'question' => 'Â¿QuÃ© podemos concluir?',
                     'options' => [
                         ['id' => 'a', 'text' => 'Juan tiene mochila', 'image_url' => null],
                         ['id' => 'b', 'text' => 'Juan no tiene mochila', 'image_url' => null],
-                        ['id' => 'c', 'text' => 'Algunos niños no tienen mochila', 'image_url' => null],
+                        ['id' => 'c', 'text' => 'Algunos niÃ±os no tienen mochila', 'image_url' => null],
                         ['id' => 'd', 'text' => 'Solo Juan tiene mochila', 'image_url' => null],
                     ],
                 ],
@@ -508,8 +508,8 @@ class ActivitySeeder extends Seeder
                 'instructions_es' => 'Resuelve el problema.',
                 'instructions_en' => 'Solve the problem.',
                 'content' => [
-                    'passage' => 'En una caja hay 10 lápices. María toma 3.',
-                    'question' => '¿Cuántos lápices quedan en la caja?',
+                    'passage' => 'En una caja hay 10 lÃ¡pices. MarÃ­a toma 3.',
+                    'question' => 'Â¿CuÃ¡ntos lÃ¡pices quedan en la caja?',
                     'options' => [
                         ['id' => 'a', 'text' => '5', 'image_url' => null],
                         ['id' => 'b', 'text' => '6', 'image_url' => null],
@@ -523,7 +523,7 @@ class ActivitySeeder extends Seeder
     }
 
     // ===================================================================
-    // MIDDLE BAND — grades 3-5 (moderate complexity, age-appropriate)
+    // MIDDLE BAND â€” grades 3-5 (moderate complexity, age-appropriate)
     // ===================================================================
 
     private function middleDiagnosticActivities(): array
@@ -536,7 +536,7 @@ class ActivitySeeder extends Seeder
                 'instructions_en' => 'Read the text and choose the main idea.',
                 'content' => [
                     'passage' => 'El sol es una estrella enorme que se encuentra en el centro de nuestro sistema solar. Nos da luz y calor para vivir.',
-                    'question' => '¿Cuál es la idea principal del texto?',
+                    'question' => 'Â¿CuÃ¡l es la idea principal del texto?',
                     'options' => [
                         ['id' => 'a', 'text' => 'El sol da calor', 'image_url' => null],
                         ['id' => 'b', 'text' => 'El sol es una estrella que da luz y calor', 'image_url' => null],
@@ -552,12 +552,12 @@ class ActivitySeeder extends Seeder
                 'instructions_es' => 'Lee y elige la mejor inferencia.',
                 'instructions_en' => 'Read and choose the best inference.',
                 'content' => [
-                    'passage' => 'María llegó a casa con el cabello mojado y los zapatos llenos de barro.',
-                    'question' => '¿Qué podemos inferir?',
+                    'passage' => 'MarÃ­a llegÃ³ a casa con el cabello mojado y los zapatos llenos de barro.',
+                    'question' => 'Â¿QuÃ© podemos inferir?',
                     'options' => [
-                        ['id' => 'a', 'text' => 'María fue a nadar', 'image_url' => null],
+                        ['id' => 'a', 'text' => 'MarÃ­a fue a nadar', 'image_url' => null],
                         ['id' => 'b', 'text' => 'Estuvo bajo la lluvia', 'image_url' => null],
-                        ['id' => 'c', 'text' => 'Lavó el piso', 'image_url' => null],
+                        ['id' => 'c', 'text' => 'LavÃ³ el piso', 'image_url' => null],
                         ['id' => 'd', 'text' => 'Fue al mercado', 'image_url' => null],
                     ],
                 ],
@@ -566,16 +566,16 @@ class ActivitySeeder extends Seeder
             [
                 'domain' => 'reading', 'skill_name' => 'fact_vs_opinion', 'difficulty' => 3, 'grade_band' => 'middle',
                 'type' => 'multiple_choice',
-                'instructions_es' => 'Identifica cuál es un hecho y cuál es una opinión.',
+                'instructions_es' => 'Identifica cuÃ¡l es un hecho y cuÃ¡l es una opiniÃ³n.',
                 'instructions_en' => 'Identify which is a fact and which is an opinion.',
                 'content' => [
                     'passage' => null,
-                    'question' => '¿Cuál de estas afirmaciones es un hecho?',
+                    'question' => 'Â¿CuÃ¡l de estas afirmaciones es un hecho?',
                     'options' => [
                         ['id' => 'a', 'text' => 'El chocolate es el mejor sabor del mundo', 'image_url' => null],
-                        ['id' => 'b', 'text' => 'El agua hierve a 100 °C al nivel del mar', 'image_url' => null],
+                        ['id' => 'b', 'text' => 'El agua hierve a 100 Â°C al nivel del mar', 'image_url' => null],
                         ['id' => 'c', 'text' => 'Los perros son mejores mascotas que los gatos', 'image_url' => null],
-                        ['id' => 'd', 'text' => 'La música clásica es aburrida', 'image_url' => null],
+                        ['id' => 'd', 'text' => 'La mÃºsica clÃ¡sica es aburrida', 'image_url' => null],
                     ],
                 ],
                 'correct_answer' => ['correct_option_id' => 'b'],
@@ -587,7 +587,7 @@ class ActivitySeeder extends Seeder
                 'instructions_en' => 'Find the different object.',
                 'content' => [
                     'passage' => null,
-                    'question' => '¿Cuál de estas palabras NO pertenece al grupo?',
+                    'question' => 'Â¿CuÃ¡l de estas palabras NO pertenece al grupo?',
                     'options' => [
                         ['id' => 'a', 'text' => 'Manzana', 'image_url' => null],
                         ['id' => 'b', 'text' => 'Pera', 'image_url' => null],
@@ -600,10 +600,10 @@ class ActivitySeeder extends Seeder
             [
                 'domain' => 'attention', 'skill_name' => 'instruction_following', 'difficulty' => 2, 'grade_band' => 'middle',
                 'type' => 'tap_sequence',
-                'instructions_es' => 'Toca los números en orden de menor a mayor.',
+                'instructions_es' => 'Toca los nÃºmeros en orden de menor a mayor.',
                 'instructions_en' => 'Tap the numbers from smallest to largest.',
                 'content' => [
-                    'instructions' => 'Toca los números en orden de menor a mayor.',
+                    'instructions' => 'Toca los nÃºmeros en orden de menor a mayor.',
                     'items' => [
                         ['id' => 'item_1', 'text' => '7'],
                         ['id' => 'item_2', 'text' => '2'],
@@ -617,11 +617,11 @@ class ActivitySeeder extends Seeder
             [
                 'domain' => 'attention', 'skill_name' => 'visual_discrimination', 'difficulty' => 3, 'grade_band' => 'middle',
                 'type' => 'multiple_choice',
-                'instructions_es' => 'Identifica la figura que es diferente a las demás.',
+                'instructions_es' => 'Identifica la figura que es diferente a las demÃ¡s.',
                 'instructions_en' => 'Identify the figure that differs from the others.',
                 'content' => [
                     'passage' => null,
-                    'question' => '¿Cuál es diferente: ABAB ABAB ABAB ACAB?',
+                    'question' => 'Â¿CuÃ¡l es diferente: ABAB ABAB ABAB ACAB?',
                     'options' => [
                         ['id' => 'a', 'text' => 'Primera secuencia', 'image_url' => null],
                         ['id' => 'b', 'text' => 'Segunda secuencia', 'image_url' => null],
@@ -634,10 +634,10 @@ class ActivitySeeder extends Seeder
             [
                 'domain' => 'reasoning', 'skill_name' => 'classification', 'difficulty' => 1, 'grade_band' => 'middle',
                 'type' => 'drag_to_sort',
-                'instructions_es' => 'Arrastra cada elemento a la categoría correcta.',
+                'instructions_es' => 'Arrastra cada elemento a la categorÃ­a correcta.',
                 'instructions_en' => 'Drag each item to the correct category.',
                 'content' => [
-                    'instructions' => 'Arrastra cada elemento a la categoría correcta.',
+                    'instructions' => 'Arrastra cada elemento a la categorÃ­a correcta.',
                     'items' => [
                         ['id' => 'item_1', 'text' => 'Perro', 'image_url' => null],
                         ['id' => 'item_2', 'text' => 'Rosa', 'image_url' => null],
@@ -654,7 +654,7 @@ class ActivitySeeder extends Seeder
             [
                 'domain' => 'reasoning', 'skill_name' => 'patterns', 'difficulty' => 2, 'grade_band' => 'middle',
                 'type' => 'multiple_choice',
-                'instructions_es' => 'Completa el patrón.',
+                'instructions_es' => 'Completa el patrÃ³n.',
                 'instructions_en' => 'Complete the pattern.',
                 'content' => [
                     'passage' => null,
@@ -676,10 +676,10 @@ class ActivitySeeder extends Seeder
                 'content' => [
                     'instructions' => 'Toca los eventos en el orden en que ocurrieron.',
                     'items' => [
-                        ['id' => 'item_1', 'text' => 'El agricultor recogió los frutos'],
-                        ['id' => 'item_2', 'text' => 'Sembró las semillas'],
-                        ['id' => 'item_3', 'text' => 'Preparó la tierra'],
-                        ['id' => 'item_4', 'text' => 'Regó las plantas'],
+                        ['id' => 'item_1', 'text' => 'El agricultor recogiÃ³ los frutos'],
+                        ['id' => 'item_2', 'text' => 'SembrÃ³ las semillas'],
+                        ['id' => 'item_3', 'text' => 'PreparÃ³ la tierra'],
+                        ['id' => 'item_4', 'text' => 'RegÃ³ las plantas'],
                     ],
                     'time_limit_seconds' => 45,
                 ],
@@ -698,11 +698,11 @@ class ActivitySeeder extends Seeder
                 'instructions_es' => 'Lee y elige la idea principal.',
                 'instructions_en' => 'Read and choose the main idea.',
                 'content' => [
-                    'passage' => 'Los perros son animales domésticos muy leales. Acompañan a las personas y las ayudan en muchas tareas.',
-                    'question' => '¿Cuál es la idea principal?',
+                    'passage' => 'Los perros son animales domÃ©sticos muy leales. AcompaÃ±an a las personas y las ayudan en muchas tareas.',
+                    'question' => 'Â¿CuÃ¡l es la idea principal?',
                     'options' => [
                         ['id' => 'a', 'text' => 'Los perros muerden', 'image_url' => null],
-                        ['id' => 'b', 'text' => 'Los perros son leales y útiles', 'image_url' => null],
+                        ['id' => 'b', 'text' => 'Los perros son leales y Ãºtiles', 'image_url' => null],
                         ['id' => 'c', 'text' => 'Los gatos son mejores mascotas', 'image_url' => null],
                         ['id' => 'd', 'text' => 'Los animales viven en el campo', 'image_url' => null],
                     ],
@@ -712,15 +712,15 @@ class ActivitySeeder extends Seeder
             [
                 'domain' => 'reading', 'skill_name' => 'sequencing', 'difficulty' => 1, 'grade_band' => 'middle',
                 'type' => 'tap_sequence',
-                'instructions_es' => 'Ordena los pasos para preparar un sándwich.',
+                'instructions_es' => 'Ordena los pasos para preparar un sÃ¡ndwich.',
                 'instructions_en' => 'Order the steps to make a sandwich.',
                 'content' => [
                     'instructions' => 'Toca los pasos en el orden correcto.',
                     'items' => [
-                        ['id' => 'item_1', 'text' => 'Comer el sándwich'],
+                        ['id' => 'item_1', 'text' => 'Comer el sÃ¡ndwich'],
                         ['id' => 'item_2', 'text' => 'Poner los ingredientes'],
                         ['id' => 'item_3', 'text' => 'Tomar el pan'],
-                        ['id' => 'item_4', 'text' => 'Cerrar el sándwich'],
+                        ['id' => 'item_4', 'text' => 'Cerrar el sÃ¡ndwich'],
                     ],
                     'time_limit_seconds' => 30,
                 ],
@@ -732,11 +732,11 @@ class ActivitySeeder extends Seeder
                 'instructions_es' => 'Elige el detalle que apoya la idea principal.',
                 'instructions_en' => 'Choose the detail that supports the main idea.',
                 'content' => [
-                    'passage' => 'El ejercicio es beneficioso para la salud. Fortalece los músculos, mejora el corazón y reduce el estrés.',
-                    'question' => '¿Qué detalle apoya que el ejercicio es beneficioso?',
+                    'passage' => 'El ejercicio es beneficioso para la salud. Fortalece los mÃºsculos, mejora el corazÃ³n y reduce el estrÃ©s.',
+                    'question' => 'Â¿QuÃ© detalle apoya que el ejercicio es beneficioso?',
                     'options' => [
-                        ['id' => 'a', 'text' => 'Mejora el corazón', 'image_url' => null],
-                        ['id' => 'b', 'text' => 'Es difícil de hacer', 'image_url' => null],
+                        ['id' => 'a', 'text' => 'Mejora el corazÃ³n', 'image_url' => null],
+                        ['id' => 'b', 'text' => 'Es difÃ­cil de hacer', 'image_url' => null],
                         ['id' => 'c', 'text' => 'Cansa mucho', 'image_url' => null],
                         ['id' => 'd', 'text' => 'Requiere ropa especial', 'image_url' => null],
                     ],
@@ -746,10 +746,10 @@ class ActivitySeeder extends Seeder
             [
                 'domain' => 'reading', 'skill_name' => 'compare_contrast', 'difficulty' => 2, 'grade_band' => 'middle',
                 'type' => 'drag_to_sort',
-                'instructions_es' => 'Clasifica las características de cada animal.',
+                'instructions_es' => 'Clasifica las caracterÃ­sticas de cada animal.',
                 'instructions_en' => 'Classify the characteristics of each animal.',
                 'content' => [
-                    'instructions' => 'Arrastra cada característica al animal correcto.',
+                    'instructions' => 'Arrastra cada caracterÃ­stica al animal correcto.',
                     'items' => [
                         ['id' => 'item_1', 'text' => 'Vive en el agua', 'image_url' => null],
                         ['id' => 'item_2', 'text' => 'Tiene plumas', 'image_url' => null],
@@ -758,7 +758,7 @@ class ActivitySeeder extends Seeder
                     ],
                     'zones' => [
                         ['id' => 'zone_a', 'label' => 'Pez'],
-                        ['id' => 'zone_b', 'label' => 'Pájaro'],
+                        ['id' => 'zone_b', 'label' => 'PÃ¡jaro'],
                     ],
                 ],
                 'correct_answer' => ['zones' => ['zone_a' => ['item_1', 'item_3'], 'zone_b' => ['item_2', 'item_4']]],
@@ -766,16 +766,16 @@ class ActivitySeeder extends Seeder
             [
                 'domain' => 'reading', 'skill_name' => 'inference', 'difficulty' => 3, 'grade_band' => 'middle',
                 'type' => 'multiple_choice',
-                'instructions_es' => 'Lee y elige la mejor conclusión.',
+                'instructions_es' => 'Lee y elige la mejor conclusiÃ³n.',
                 'instructions_en' => 'Read and choose the best conclusion.',
                 'content' => [
-                    'passage' => 'Carlos no durmió bien, no desayunó y llegó tarde al trabajo. Su jefe lo miró con ceño fruncido.',
-                    'question' => '¿Qué puede inferirse sobre el día de Carlos?',
+                    'passage' => 'Carlos no durmiÃ³ bien, no desayunÃ³ y llegÃ³ tarde al trabajo. Su jefe lo mirÃ³ con ceÃ±o fruncido.',
+                    'question' => 'Â¿QuÃ© puede inferirse sobre el dÃ­a de Carlos?',
                     'options' => [
-                        ['id' => 'a', 'text' => 'Fue un día excelente', 'image_url' => null],
-                        ['id' => 'b', 'text' => 'Fue un día difícil', 'image_url' => null],
+                        ['id' => 'a', 'text' => 'Fue un dÃ­a excelente', 'image_url' => null],
+                        ['id' => 'b', 'text' => 'Fue un dÃ­a difÃ­cil', 'image_url' => null],
                         ['id' => 'c', 'text' => 'Su jefe estaba contento', 'image_url' => null],
-                        ['id' => 'd', 'text' => 'Carlos ganó un premio', 'image_url' => null],
+                        ['id' => 'd', 'text' => 'Carlos ganÃ³ un premio', 'image_url' => null],
                     ],
                 ],
                 'correct_answer' => ['correct_option_id' => 'b'],
@@ -786,12 +786,12 @@ class ActivitySeeder extends Seeder
                 'instructions_es' => 'Elige el mejor resumen del texto.',
                 'instructions_en' => 'Choose the best summary of the text.',
                 'content' => [
-                    'passage' => 'Las abejas son insectos fundamentales para el ecosistema. Polinizan flores y plantas, lo que permite que crezcan frutos y semillas. Sin las abejas, muchas plantas desaparecerían.',
-                    'question' => '¿Cuál es el mejor resumen?',
+                    'passage' => 'Las abejas son insectos fundamentales para el ecosistema. Polinizan flores y plantas, lo que permite que crezcan frutos y semillas. Sin las abejas, muchas plantas desaparecerÃ­an.',
+                    'question' => 'Â¿CuÃ¡l es el mejor resumen?',
                     'options' => [
                         ['id' => 'a', 'text' => 'Las abejas producen miel', 'image_url' => null],
                         ['id' => 'b', 'text' => 'Las abejas son importantes para las plantas y el ecosistema', 'image_url' => null],
-                        ['id' => 'c', 'text' => 'Los insectos viven en el jardín', 'image_url' => null],
+                        ['id' => 'c', 'text' => 'Los insectos viven en el jardÃ­n', 'image_url' => null],
                         ['id' => 'd', 'text' => 'Las flores necesitan agua', 'image_url' => null],
                     ],
                 ],
@@ -805,11 +805,11 @@ class ActivitySeeder extends Seeder
                 'instructions_en' => 'Select the word that does NOT belong to the group.',
                 'content' => [
                     'passage' => null,
-                    'question' => '¿Cuál no es un color?',
+                    'question' => 'Â¿CuÃ¡l no es un color?',
                     'options' => [
                         ['id' => 'a', 'text' => 'Rojo', 'image_url' => null],
                         ['id' => 'b', 'text' => 'Azul', 'image_url' => null],
-                        ['id' => 'c', 'text' => 'Círculo', 'image_url' => null],
+                        ['id' => 'c', 'text' => 'CÃ­rculo', 'image_url' => null],
                         ['id' => 'd', 'text' => 'Verde', 'image_url' => null],
                     ],
                 ],
@@ -818,7 +818,7 @@ class ActivitySeeder extends Seeder
             [
                 'domain' => 'attention', 'skill_name' => 'sustained_attention', 'difficulty' => 1, 'grade_band' => 'middle',
                 'type' => 'tap_sequence',
-                'instructions_es' => 'Toca solo las vocales en orden de aparición.',
+                'instructions_es' => 'Toca solo las vocales en orden de apariciÃ³n.',
                 'instructions_en' => 'Tap only the vowels in order of appearance.',
                 'content' => [
                     'instructions' => 'Toca solo las vocales en el orden que aparecen.',
@@ -839,8 +839,8 @@ class ActivitySeeder extends Seeder
                 'instructions_es' => 'Antes de responder, lee todo con cuidado.',
                 'instructions_en' => 'Before answering, read everything carefully.',
                 'content' => [
-                    'passage' => 'Si un número es mayor que 5 y menor que 10, dibuja un cuadrado. Si es exactamente 7, pinta el cuadrado de azul.',
-                    'question' => '¿Qué haces con el número 7?',
+                    'passage' => 'Si un nÃºmero es mayor que 5 y menor que 10, dibuja un cuadrado. Si es exactamente 7, pinta el cuadrado de azul.',
+                    'question' => 'Â¿QuÃ© haces con el nÃºmero 7?',
                     'options' => [
                         ['id' => 'a', 'text' => 'Solo dibujas un cuadrado', 'image_url' => null],
                         ['id' => 'b', 'text' => 'Dibujas un cuadrado y lo pintas de azul', 'image_url' => null],
@@ -856,8 +856,8 @@ class ActivitySeeder extends Seeder
                 'instructions_es' => 'Ignora los datos que no son relevantes.',
                 'instructions_en' => 'Ignore data that is not relevant.',
                 'content' => [
-                    'passage' => 'Juan tiene 12 años. Tiene 3 hermanos. Su perro se llama Firulais. ¿Cuántos años tiene Juan?',
-                    'question' => '¿Cuántos años tiene Juan?',
+                    'passage' => 'Juan tiene 12 aÃ±os. Tiene 3 hermanos. Su perro se llama Firulais. Â¿CuÃ¡ntos aÃ±os tiene Juan?',
+                    'question' => 'Â¿CuÃ¡ntos aÃ±os tiene Juan?',
                     'options' => [
                         ['id' => 'a', 'text' => '3', 'image_url' => null],
                         ['id' => 'b', 'text' => '12', 'image_url' => null],
@@ -870,10 +870,10 @@ class ActivitySeeder extends Seeder
             [
                 'domain' => 'attention', 'skill_name' => 'speed_accuracy', 'difficulty' => 3, 'grade_band' => 'middle',
                 'type' => 'tap_sequence',
-                'instructions_es' => 'Ordena los planetas del más cercano al más lejano del sol.',
+                'instructions_es' => 'Ordena los planetas del mÃ¡s cercano al mÃ¡s lejano del sol.',
                 'instructions_en' => 'Order the planets from closest to farthest from the sun.',
                 'content' => [
-                    'instructions' => 'Toca en orden del más cercano al más lejano del sol.',
+                    'instructions' => 'Toca en orden del mÃ¡s cercano al mÃ¡s lejano del sol.',
                     'items' => [
                         ['id' => 'item_1', 'text' => 'Tierra'],
                         ['id' => 'item_2', 'text' => 'Mercurio'],
@@ -888,19 +888,19 @@ class ActivitySeeder extends Seeder
             [
                 'domain' => 'reasoning', 'skill_name' => 'classification', 'difficulty' => 1, 'grade_band' => 'middle',
                 'type' => 'drag_to_sort',
-                'instructions_es' => 'Clasifica en transporte terrestre o aéreo.',
+                'instructions_es' => 'Clasifica en transporte terrestre o aÃ©reo.',
                 'instructions_en' => 'Classify as land or air transport.',
                 'content' => [
                     'instructions' => 'Arrastra al tipo de transporte correcto.',
                     'items' => [
-                        ['id' => 'item_1', 'text' => 'Avión', 'image_url' => null],
+                        ['id' => 'item_1', 'text' => 'AviÃ³n', 'image_url' => null],
                         ['id' => 'item_2', 'text' => 'Auto', 'image_url' => null],
-                        ['id' => 'item_3', 'text' => 'Helicóptero', 'image_url' => null],
+                        ['id' => 'item_3', 'text' => 'HelicÃ³ptero', 'image_url' => null],
                         ['id' => 'item_4', 'text' => 'Tren', 'image_url' => null],
                     ],
                     'zones' => [
                         ['id' => 'zone_a', 'label' => 'Terrestre'],
-                        ['id' => 'zone_b', 'label' => 'Aéreo'],
+                        ['id' => 'zone_b', 'label' => 'AÃ©reo'],
                     ],
                 ],
                 'correct_answer' => ['zones' => ['zone_a' => ['item_2', 'item_4'], 'zone_b' => ['item_1', 'item_3']]],
@@ -908,7 +908,7 @@ class ActivitySeeder extends Seeder
             [
                 'domain' => 'reasoning', 'skill_name' => 'analogies', 'difficulty' => 2, 'grade_band' => 'middle',
                 'type' => 'multiple_choice',
-                'instructions_es' => 'Completa la analogía.',
+                'instructions_es' => 'Completa la analogÃ­a.',
                 'instructions_en' => 'Complete the analogy.',
                 'content' => [
                     'passage' => null,
@@ -945,13 +945,13 @@ class ActivitySeeder extends Seeder
                 'instructions_es' => 'Identifica la causa.',
                 'instructions_en' => 'Identify the cause.',
                 'content' => [
-                    'passage' => 'El cielo se nubló, el viento sopló fuerte y comenzó a llover.',
-                    'question' => '¿Cuál fue la causa de la lluvia?',
+                    'passage' => 'El cielo se nublÃ³, el viento soplÃ³ fuerte y comenzÃ³ a llover.',
+                    'question' => 'Â¿CuÃ¡l fue la causa de la lluvia?',
                     'options' => [
-                        ['id' => 'a', 'text' => 'El cielo se nubló y el viento sopló fuerte', 'image_url' => null],
+                        ['id' => 'a', 'text' => 'El cielo se nublÃ³ y el viento soplÃ³ fuerte', 'image_url' => null],
                         ['id' => 'b', 'text' => 'La lluvia hizo que el cielo se nublara', 'image_url' => null],
-                        ['id' => 'c', 'text' => 'El sol salió', 'image_url' => null],
-                        ['id' => 'd', 'text' => 'Nadie sabe por qué llovió', 'image_url' => null],
+                        ['id' => 'c', 'text' => 'El sol saliÃ³', 'image_url' => null],
+                        ['id' => 'd', 'text' => 'Nadie sabe por quÃ© lloviÃ³', 'image_url' => null],
                     ],
                 ],
                 'correct_answer' => ['correct_option_id' => 'a'],
@@ -959,16 +959,16 @@ class ActivitySeeder extends Seeder
             [
                 'domain' => 'reasoning', 'skill_name' => 'deductive_logic', 'difficulty' => 3, 'grade_band' => 'middle',
                 'type' => 'multiple_choice',
-                'instructions_es' => 'Usa la lógica para encontrar la respuesta.',
+                'instructions_es' => 'Usa la lÃ³gica para encontrar la respuesta.',
                 'instructions_en' => 'Use logic to find the answer.',
                 'content' => [
-                    'passage' => 'Todos los pájaros tienen alas. El pingüino es un pájaro.',
-                    'question' => '¿Qué podemos concluir?',
+                    'passage' => 'Todos los pÃ¡jaros tienen alas. El pingÃ¼ino es un pÃ¡jaro.',
+                    'question' => 'Â¿QuÃ© podemos concluir?',
                     'options' => [
-                        ['id' => 'a', 'text' => 'El pingüino puede volar', 'image_url' => null],
-                        ['id' => 'b', 'text' => 'El pingüino tiene alas', 'image_url' => null],
-                        ['id' => 'c', 'text' => 'Los pájaros son pingüinos', 'image_url' => null],
-                        ['id' => 'd', 'text' => 'Los pingüinos no son aves', 'image_url' => null],
+                        ['id' => 'a', 'text' => 'El pingÃ¼ino puede volar', 'image_url' => null],
+                        ['id' => 'b', 'text' => 'El pingÃ¼ino tiene alas', 'image_url' => null],
+                        ['id' => 'c', 'text' => 'Los pÃ¡jaros son pingÃ¼inos', 'image_url' => null],
+                        ['id' => 'd', 'text' => 'Los pingÃ¼inos no son aves', 'image_url' => null],
                     ],
                 ],
                 'correct_answer' => ['correct_option_id' => 'b'],
@@ -980,7 +980,7 @@ class ActivitySeeder extends Seeder
                 'instructions_en' => 'Solve the problem.',
                 'content' => [
                     'passage' => 'Ana tiene 15 caramelos. Le da 4 a Juan y 3 a Pedro.',
-                    'question' => '¿Cuántos caramelos le quedan a Ana?',
+                    'question' => 'Â¿CuÃ¡ntos caramelos le quedan a Ana?',
                     'options' => [
                         ['id' => 'a', 'text' => '6', 'image_url' => null],
                         ['id' => 'b', 'text' => '7', 'image_url' => null],
@@ -994,7 +994,7 @@ class ActivitySeeder extends Seeder
     }
 
     // ===================================================================
-    // UPPER BAND — grades 6-9  (abstract, denser, more inferential)
+    // UPPER BAND â€” grades 6-9  (abstract, denser, more inferential)
     // ===================================================================
 
     private function upperDiagnosticActivities(): array
@@ -1006,13 +1006,13 @@ class ActivitySeeder extends Seeder
                 'instructions_es' => 'Lee el texto y elige la idea central.',
                 'instructions_en' => 'Read the text and choose the central idea.',
                 'content' => [
-                    'passage' => 'La globalización ha transformado las economías locales al facilitar el libre flujo de bienes, servicios y capital entre naciones. Sin embargo, este proceso también ha generado desigualdades y ha puesto en riesgo la identidad cultural de comunidades tradicionales.',
-                    'question' => '¿Cuál es la idea central del texto?',
+                    'passage' => 'La globalizaciÃ³n ha transformado las economÃ­as locales al facilitar el libre flujo de bienes, servicios y capital entre naciones. Sin embargo, este proceso tambiÃ©n ha generado desigualdades y ha puesto en riesgo la identidad cultural de comunidades tradicionales.',
+                    'question' => 'Â¿CuÃ¡l es la idea central del texto?',
                     'options' => [
-                        ['id' => 'a', 'text' => 'La globalización solo trae beneficios económicos', 'image_url' => null],
-                        ['id' => 'b', 'text' => 'La globalización transforma economías pero genera desigualdades y riesgos culturales', 'image_url' => null],
+                        ['id' => 'a', 'text' => 'La globalizaciÃ³n solo trae beneficios econÃ³micos', 'image_url' => null],
+                        ['id' => 'b', 'text' => 'La globalizaciÃ³n transforma economÃ­as pero genera desigualdades y riesgos culturales', 'image_url' => null],
                         ['id' => 'c', 'text' => 'El libre comercio elimina la pobreza mundial', 'image_url' => null],
-                        ['id' => 'd', 'text' => 'Las culturas tradicionales deben rechazar la globalización', 'image_url' => null],
+                        ['id' => 'd', 'text' => 'Las culturas tradicionales deben rechazar la globalizaciÃ³n', 'image_url' => null],
                     ],
                 ],
                 'correct_answer' => ['correct_option_id' => 'b'],
@@ -1020,15 +1020,15 @@ class ActivitySeeder extends Seeder
             [
                 'domain' => 'reading', 'skill_name' => 'inference', 'difficulty' => 2, 'grade_band' => 'upper',
                 'type' => 'multiple_choice',
-                'instructions_es' => 'Lee y elige la inferencia más sólida.',
+                'instructions_es' => 'Lee y elige la inferencia mÃ¡s sÃ³lida.',
                 'instructions_en' => 'Read and choose the strongest inference.',
                 'content' => [
-                    'passage' => 'El informe fue entregado con tres días de retraso. La directora lo revisó en silencio, subrayó varios párrafos y devolvió el documento sin decir una palabra.',
-                    'question' => '¿Qué se puede inferir sobre la situación?',
+                    'passage' => 'El informe fue entregado con tres dÃ­as de retraso. La directora lo revisÃ³ en silencio, subrayÃ³ varios pÃ¡rrafos y devolviÃ³ el documento sin decir una palabra.',
+                    'question' => 'Â¿QuÃ© se puede inferir sobre la situaciÃ³n?',
                     'options' => [
-                        ['id' => 'a', 'text' => 'La directora quedó muy satisfecha con el informe', 'image_url' => null],
+                        ['id' => 'a', 'text' => 'La directora quedÃ³ muy satisfecha con el informe', 'image_url' => null],
                         ['id' => 'b', 'text' => 'El informe era excelente pero demasiado largo', 'image_url' => null],
-                        ['id' => 'c', 'text' => 'La directora encontró problemas serios en el informe', 'image_url' => null],
+                        ['id' => 'c', 'text' => 'La directora encontrÃ³ problemas serios en el informe', 'image_url' => null],
                         ['id' => 'd', 'text' => 'El retraso fue justificado y comprendido', 'image_url' => null],
                     ],
                 ],
@@ -1037,16 +1037,16 @@ class ActivitySeeder extends Seeder
             [
                 'domain' => 'reading', 'skill_name' => 'fact_vs_opinion', 'difficulty' => 3, 'grade_band' => 'upper',
                 'type' => 'multiple_choice',
-                'instructions_es' => 'Identifica la afirmación verificable como hecho.',
+                'instructions_es' => 'Identifica la afirmaciÃ³n verificable como hecho.',
                 'instructions_en' => 'Identify the statement verifiable as a fact.',
                 'content' => [
                     'passage' => null,
-                    'question' => '¿Cuál de estas afirmaciones es un hecho verificable?',
+                    'question' => 'Â¿CuÃ¡l de estas afirmaciones es un hecho verificable?',
                     'options' => [
                         ['id' => 'a', 'text' => 'La democracia es el mejor sistema de gobierno posible', 'image_url' => null],
-                        ['id' => 'b', 'text' => 'Según el 97% de los climatólogos, el cambio climático es causado principalmente por actividades humanas', 'image_url' => null],
-                        ['id' => 'c', 'text' => 'Las energías renovables son siempre más eficientes que las fósiles', 'image_url' => null],
-                        ['id' => 'd', 'text' => 'La tecnología mejora inevitablemente la calidad de vida', 'image_url' => null],
+                        ['id' => 'b', 'text' => 'SegÃºn el 97% de los climatÃ³logos, el cambio climÃ¡tico es causado principalmente por actividades humanas', 'image_url' => null],
+                        ['id' => 'c', 'text' => 'Las energÃ­as renovables son siempre mÃ¡s eficientes que las fÃ³siles', 'image_url' => null],
+                        ['id' => 'd', 'text' => 'La tecnologÃ­a mejora inevitablemente la calidad de vida', 'image_url' => null],
                     ],
                 ],
                 'correct_answer' => ['correct_option_id' => 'b'],
@@ -1054,15 +1054,15 @@ class ActivitySeeder extends Seeder
             [
                 'domain' => 'attention', 'skill_name' => 'selective_attention', 'difficulty' => 1, 'grade_band' => 'upper',
                 'type' => 'multiple_choice',
-                'instructions_es' => 'Encuentra el concepto que NO pertenece a la biología.',
+                'instructions_es' => 'Encuentra el concepto que NO pertenece a la biologÃ­a.',
                 'instructions_en' => 'Find the concept that does NOT belong to biology.',
                 'content' => [
                     'passage' => null,
-                    'question' => '¿Cuál de estos conceptos NO pertenece al campo de la biología?',
+                    'question' => 'Â¿CuÃ¡l de estos conceptos NO pertenece al campo de la biologÃ­a?',
                     'options' => [
-                        ['id' => 'a', 'text' => 'Fotosíntesis', 'image_url' => null],
+                        ['id' => 'a', 'text' => 'FotosÃ­ntesis', 'image_url' => null],
                         ['id' => 'b', 'text' => 'Mitosis', 'image_url' => null],
-                        ['id' => 'c', 'text' => 'Termodinámica', 'image_url' => null],
+                        ['id' => 'c', 'text' => 'TermodinÃ¡mica', 'image_url' => null],
                         ['id' => 'd', 'text' => 'Ecosistema', 'image_url' => null],
                     ],
                 ],
@@ -1071,12 +1071,12 @@ class ActivitySeeder extends Seeder
             [
                 'domain' => 'attention', 'skill_name' => 'instruction_following', 'difficulty' => 2, 'grade_band' => 'upper',
                 'type' => 'tap_sequence',
-                'instructions_es' => 'Ordena los pasos del método científico.',
+                'instructions_es' => 'Ordena los pasos del mÃ©todo cientÃ­fico.',
                 'instructions_en' => 'Put the steps of the scientific method in order.',
                 'content' => [
-                    'instructions' => 'Toca los pasos del método científico en el orden correcto.',
+                    'instructions' => 'Toca los pasos del mÃ©todo cientÃ­fico en el orden correcto.',
                     'items' => [
-                        ['id' => 'item_1', 'text' => 'Formular hipótesis'],
+                        ['id' => 'item_1', 'text' => 'Formular hipÃ³tesis'],
                         ['id' => 'item_2', 'text' => 'Experimentar'],
                         ['id' => 'item_3', 'text' => 'Observar'],
                         ['id' => 'item_4', 'text' => 'Concluir'],
@@ -1088,11 +1088,11 @@ class ActivitySeeder extends Seeder
             [
                 'domain' => 'attention', 'skill_name' => 'visual_discrimination', 'difficulty' => 3, 'grade_band' => 'upper',
                 'type' => 'multiple_choice',
-                'instructions_es' => 'Encuentra la secuencia que rompe el patrón.',
+                'instructions_es' => 'Encuentra la secuencia que rompe el patrÃ³n.',
                 'instructions_en' => 'Find the sequence that breaks the pattern.',
                 'content' => [
                     'passage' => null,
-                    'question' => '¿En cuál secuencia hay un elemento diferente? XYZXYZ | XYZXYZ | XYZXYW | XYZXYZ',
+                    'question' => 'Â¿En cuÃ¡l secuencia hay un elemento diferente? XYZXYZ | XYZXYZ | XYZXYW | XYZXYZ',
                     'options' => [
                         ['id' => 'a', 'text' => 'Primera: XYZXYZ', 'image_url' => null],
                         ['id' => 'b', 'text' => 'Segunda: XYZXYZ', 'image_url' => null],
@@ -1105,15 +1105,15 @@ class ActivitySeeder extends Seeder
             [
                 'domain' => 'reasoning', 'skill_name' => 'classification', 'difficulty' => 1, 'grade_band' => 'upper',
                 'type' => 'drag_to_sort',
-                'instructions_es' => 'Clasifica según tipo de fuente de energía.',
+                'instructions_es' => 'Clasifica segÃºn tipo de fuente de energÃ­a.',
                 'instructions_en' => 'Classify by type of energy source.',
                 'content' => [
                     'instructions' => 'Arrastra cada fuente al grupo correcto.',
                     'items' => [
-                        ['id' => 'item_1', 'text' => 'Energía solar', 'image_url' => null],
-                        ['id' => 'item_2', 'text' => 'Carbón', 'image_url' => null],
-                        ['id' => 'item_3', 'text' => 'Energía eólica', 'image_url' => null],
-                        ['id' => 'item_4', 'text' => 'Petróleo', 'image_url' => null],
+                        ['id' => 'item_1', 'text' => 'EnergÃ­a solar', 'image_url' => null],
+                        ['id' => 'item_2', 'text' => 'CarbÃ³n', 'image_url' => null],
+                        ['id' => 'item_3', 'text' => 'EnergÃ­a eÃ³lica', 'image_url' => null],
+                        ['id' => 'item_4', 'text' => 'PetrÃ³leo', 'image_url' => null],
                     ],
                     'zones' => [
                         ['id' => 'zone_a', 'label' => 'Renovable'],
@@ -1142,15 +1142,15 @@ class ActivitySeeder extends Seeder
             [
                 'domain' => 'reasoning', 'skill_name' => 'cause_effect', 'difficulty' => 3, 'grade_band' => 'upper',
                 'type' => 'tap_sequence',
-                'instructions_es' => 'Ordena los eventos que llevaron a la Revolución Industrial.',
+                'instructions_es' => 'Ordena los eventos que llevaron a la RevoluciÃ³n Industrial.',
                 'instructions_en' => 'Order the events that led to the Industrial Revolution.',
                 'content' => [
-                    'instructions' => 'Toca los eventos en el orden lógico en que ocurrieron.',
+                    'instructions' => 'Toca los eventos en el orden lÃ³gico en que ocurrieron.',
                     'items' => [
-                        ['id' => 'item_1', 'text' => 'Se mecanizó la producción en fábricas'],
-                        ['id' => 'item_2', 'text' => 'Aumentó la demanda masiva de bienes'],
-                        ['id' => 'item_3', 'text' => 'Se inventó la máquina de vapor'],
-                        ['id' => 'item_4', 'text' => 'Surgió la clase obrera urbana'],
+                        ['id' => 'item_1', 'text' => 'Se mecanizÃ³ la producciÃ³n en fÃ¡bricas'],
+                        ['id' => 'item_2', 'text' => 'AumentÃ³ la demanda masiva de bienes'],
+                        ['id' => 'item_3', 'text' => 'Se inventÃ³ la mÃ¡quina de vapor'],
+                        ['id' => 'item_4', 'text' => 'SurgiÃ³ la clase obrera urbana'],
                     ],
                     'time_limit_seconds' => 45,
                 ],
@@ -1169,12 +1169,12 @@ class ActivitySeeder extends Seeder
                 'instructions_es' => 'Lee y elige la idea central del texto.',
                 'instructions_en' => 'Read and choose the central idea of the text.',
                 'content' => [
-                    'passage' => 'La inteligencia artificial ha comenzado a transformar sectores como la medicina, la educación y la industria. A pesar de sus enormes beneficios en diagnósticos precisos y procesos automatizados, también plantea preguntas éticas sobre el desplazamiento laboral y la privacidad de datos.',
-                    'question' => '¿Cuál es la idea central?',
+                    'passage' => 'La inteligencia artificial ha comenzado a transformar sectores como la medicina, la educaciÃ³n y la industria. A pesar de sus enormes beneficios en diagnÃ³sticos precisos y procesos automatizados, tambiÃ©n plantea preguntas Ã©ticas sobre el desplazamiento laboral y la privacidad de datos.',
+                    'question' => 'Â¿CuÃ¡l es la idea central?',
                     'options' => [
                         ['id' => 'a', 'text' => 'La IA solo funciona en medicina', 'image_url' => null],
-                        ['id' => 'b', 'text' => 'La IA transforma sectores con beneficios, pero también genera dilemas éticos', 'image_url' => null],
-                        ['id' => 'c', 'text' => 'La automatización elimina todos los empleos', 'image_url' => null],
+                        ['id' => 'b', 'text' => 'La IA transforma sectores con beneficios, pero tambiÃ©n genera dilemas Ã©ticos', 'image_url' => null],
+                        ['id' => 'c', 'text' => 'La automatizaciÃ³n elimina todos los empleos', 'image_url' => null],
                         ['id' => 'd', 'text' => 'La IA viola siempre la privacidad personal', 'image_url' => null],
                     ],
                 ],
@@ -1188,10 +1188,10 @@ class ActivitySeeder extends Seeder
                 'content' => [
                     'instructions' => 'Toca los pasos en el orden correcto del proceso legislativo.',
                     'items' => [
-                        ['id' => 'item_1', 'text' => 'Promulgación por el ejecutivo'],
+                        ['id' => 'item_1', 'text' => 'PromulgaciÃ³n por el ejecutivo'],
                         ['id' => 'item_2', 'text' => 'Debate en el congreso'],
                         ['id' => 'item_3', 'text' => 'Propuesta inicial de ley'],
-                        ['id' => 'item_4', 'text' => 'Aprobación en comisiones'],
+                        ['id' => 'item_4', 'text' => 'AprobaciÃ³n en comisiones'],
                     ],
                     'time_limit_seconds' => 30,
                 ],
@@ -1200,15 +1200,15 @@ class ActivitySeeder extends Seeder
             [
                 'domain' => 'reading', 'skill_name' => 'supporting_details', 'difficulty' => 2, 'grade_band' => 'upper',
                 'type' => 'multiple_choice',
-                'instructions_es' => 'Elige el detalle que mejor apoya la afirmación central.',
+                'instructions_es' => 'Elige el detalle que mejor apoya la afirmaciÃ³n central.',
                 'instructions_en' => 'Choose the detail that best supports the central claim.',
                 'content' => [
-                    'passage' => 'El calentamiento global está acelerando el derretimiento de los glaciares. Esto eleva el nivel del mar, inunda zonas costeras y afecta los ciclos de agua dulce de los que dependen millones de personas.',
-                    'question' => '¿Qué detalle apoya que el derretimiento de glaciares es un problema grave?',
+                    'passage' => 'El calentamiento global estÃ¡ acelerando el derretimiento de los glaciares. Esto eleva el nivel del mar, inunda zonas costeras y afecta los ciclos de agua dulce de los que dependen millones de personas.',
+                    'question' => 'Â¿QuÃ© detalle apoya que el derretimiento de glaciares es un problema grave?',
                     'options' => [
                         ['id' => 'a', 'text' => 'Los glaciares son muy antiguos', 'image_url' => null],
                         ['id' => 'b', 'text' => 'Eleva el nivel del mar e inunda zonas costeras afectando a millones', 'image_url' => null],
-                        ['id' => 'c', 'text' => 'El agua fría es más densa que el agua caliente', 'image_url' => null],
+                        ['id' => 'c', 'text' => 'El agua frÃ­a es mÃ¡s densa que el agua caliente', 'image_url' => null],
                         ['id' => 'd', 'text' => 'Los osos polares viven cerca de los glaciares', 'image_url' => null],
                     ],
                 ],
@@ -1217,13 +1217,13 @@ class ActivitySeeder extends Seeder
             [
                 'domain' => 'reading', 'skill_name' => 'compare_contrast', 'difficulty' => 2, 'grade_band' => 'upper',
                 'type' => 'drag_to_sort',
-                'instructions_es' => 'Clasifica las características de cada sistema económico.',
+                'instructions_es' => 'Clasifica las caracterÃ­sticas de cada sistema econÃ³mico.',
                 'instructions_en' => 'Classify the characteristics of each economic system.',
                 'content' => [
-                    'instructions' => 'Arrastra cada característica al sistema correcto.',
+                    'instructions' => 'Arrastra cada caracterÃ­stica al sistema correcto.',
                     'items' => [
-                        ['id' => 'item_1', 'text' => 'Propiedad privada de los medios de producción', 'image_url' => null],
-                        ['id' => 'item_2', 'text' => 'Planificación centralizada del Estado', 'image_url' => null],
+                        ['id' => 'item_1', 'text' => 'Propiedad privada de los medios de producciÃ³n', 'image_url' => null],
+                        ['id' => 'item_2', 'text' => 'PlanificaciÃ³n centralizada del Estado', 'image_url' => null],
                         ['id' => 'item_3', 'text' => 'Libre mercado y competencia', 'image_url' => null],
                         ['id' => 'item_4', 'text' => 'Control estatal de los precios', 'image_url' => null],
                     ],
@@ -1240,13 +1240,13 @@ class ActivitySeeder extends Seeder
                 'instructions_es' => 'Lee y elige la inferencia mejor respaldada por el texto.',
                 'instructions_en' => 'Read and choose the inference best supported by the text.',
                 'content' => [
-                    'passage' => 'El científico publicó sus hallazgos en una revista de alto impacto. Al día siguiente, tres laboratorios internacionales solicitaron acceso a sus datos y dos universidades lo invitaron a dar conferencias.',
-                    'question' => '¿Qué se puede inferir sobre los hallazgos?',
+                    'passage' => 'El cientÃ­fico publicÃ³ sus hallazgos en una revista de alto impacto. Al dÃ­a siguiente, tres laboratorios internacionales solicitaron acceso a sus datos y dos universidades lo invitaron a dar conferencias.',
+                    'question' => 'Â¿QuÃ© se puede inferir sobre los hallazgos?',
                     'options' => [
-                        ['id' => 'a', 'text' => 'Fueron polémicos y rechazados por la comunidad científica', 'image_url' => null],
-                        ['id' => 'b', 'text' => 'Fueron significativos e importantes para la comunidad científica', 'image_url' => null],
+                        ['id' => 'a', 'text' => 'Fueron polÃ©micos y rechazados por la comunidad cientÃ­fica', 'image_url' => null],
+                        ['id' => 'b', 'text' => 'Fueron significativos e importantes para la comunidad cientÃ­fica', 'image_url' => null],
                         ['id' => 'c', 'text' => 'Fueron copiados de investigaciones anteriores', 'image_url' => null],
-                        ['id' => 'd', 'text' => 'Fueron publicados sin revisión por pares', 'image_url' => null],
+                        ['id' => 'd', 'text' => 'Fueron publicados sin revisiÃ³n por pares', 'image_url' => null],
                     ],
                 ],
                 'correct_answer' => ['correct_option_id' => 'b'],
@@ -1254,16 +1254,16 @@ class ActivitySeeder extends Seeder
             [
                 'domain' => 'reading', 'skill_name' => 'summarization', 'difficulty' => 3, 'grade_band' => 'upper',
                 'type' => 'multiple_choice',
-                'instructions_es' => 'Elige el resumen más preciso y completo.',
+                'instructions_es' => 'Elige el resumen mÃ¡s preciso y completo.',
                 'instructions_en' => 'Choose the most accurate and complete summary.',
                 'content' => [
-                    'passage' => 'La Revolución Francesa derrocó a la monarquía, proclamó los derechos del ciudadano y difundió los ideales de libertad, igualdad y fraternidad. Aunque estuvo marcada por violencia y el Terror, estableció las bases del pensamiento político moderno y del estado laico.',
-                    'question' => '¿Cuál es el mejor resumen?',
+                    'passage' => 'La RevoluciÃ³n Francesa derrocÃ³ a la monarquÃ­a, proclamÃ³ los derechos del ciudadano y difundiÃ³ los ideales de libertad, igualdad y fraternidad. Aunque estuvo marcada por violencia y el Terror, estableciÃ³ las bases del pensamiento polÃ­tico moderno y del estado laico.',
+                    'question' => 'Â¿CuÃ¡l es el mejor resumen?',
                     'options' => [
-                        ['id' => 'a', 'text' => 'La Revolución Francesa fue un período de violencia sin logros duraderos', 'image_url' => null],
-                        ['id' => 'b', 'text' => 'La Revolución Francesa terminó con la monarquía y fundó la política moderna a pesar de su violencia', 'image_url' => null],
-                        ['id' => 'c', 'text' => 'La fraternidad y la igualdad se lograron plenamente durante la Revolución', 'image_url' => null],
-                        ['id' => 'd', 'text' => 'El Terror fue el principal legado de la Revolución Francesa', 'image_url' => null],
+                        ['id' => 'a', 'text' => 'La RevoluciÃ³n Francesa fue un perÃ­odo de violencia sin logros duraderos', 'image_url' => null],
+                        ['id' => 'b', 'text' => 'La RevoluciÃ³n Francesa terminÃ³ con la monarquÃ­a y fundÃ³ la polÃ­tica moderna a pesar de su violencia', 'image_url' => null],
+                        ['id' => 'c', 'text' => 'La fraternidad y la igualdad se lograron plenamente durante la RevoluciÃ³n', 'image_url' => null],
+                        ['id' => 'd', 'text' => 'El Terror fue el principal legado de la RevoluciÃ³n Francesa', 'image_url' => null],
                     ],
                 ],
                 'correct_answer' => ['correct_option_id' => 'b'],
@@ -1276,12 +1276,12 @@ class ActivitySeeder extends Seeder
                 'instructions_en' => 'Choose the one that is NOT a type of government.',
                 'content' => [
                     'passage' => null,
-                    'question' => '¿Cuál de estos NO es un tipo de gobierno?',
+                    'question' => 'Â¿CuÃ¡l de estos NO es un tipo de gobierno?',
                     'options' => [
                         ['id' => 'a', 'text' => 'Democracia', 'image_url' => null],
                         ['id' => 'b', 'text' => 'Teocracia', 'image_url' => null],
-                        ['id' => 'c', 'text' => 'Oligarquía', 'image_url' => null],
-                        ['id' => 'd', 'text' => 'Fotosíntesis', 'image_url' => null],
+                        ['id' => 'c', 'text' => 'OligarquÃ­a', 'image_url' => null],
+                        ['id' => 'd', 'text' => 'FotosÃ­ntesis', 'image_url' => null],
                     ],
                 ],
                 'correct_answer' => ['correct_option_id' => 'd'],
@@ -1289,16 +1289,16 @@ class ActivitySeeder extends Seeder
             [
                 'domain' => 'attention', 'skill_name' => 'sustained_attention', 'difficulty' => 1, 'grade_band' => 'upper',
                 'type' => 'tap_sequence',
-                'instructions_es' => 'Toca solo los conceptos de economía en orden de aparición.',
+                'instructions_es' => 'Toca solo los conceptos de economÃ­a en orden de apariciÃ³n.',
                 'instructions_en' => 'Tap only the economics concepts in order of appearance.',
                 'content' => [
-                    'instructions' => 'Toca solo los conceptos relacionados con economía.',
+                    'instructions' => 'Toca solo los conceptos relacionados con economÃ­a.',
                     'items' => [
-                        ['id' => 'item_1', 'text' => 'Inflación'],
+                        ['id' => 'item_1', 'text' => 'InflaciÃ³n'],
                         ['id' => 'item_2', 'text' => 'Mitosis'],
                         ['id' => 'item_3', 'text' => 'PIB'],
                         ['id' => 'item_4', 'text' => 'Cromosoma'],
-                        ['id' => 'item_5', 'text' => 'Déficit fiscal'],
+                        ['id' => 'item_5', 'text' => 'DÃ©ficit fiscal'],
                     ],
                     'time_limit_seconds' => 20,
                 ],
@@ -1310,13 +1310,13 @@ class ActivitySeeder extends Seeder
                 'instructions_es' => 'Lee todas las condiciones antes de responder.',
                 'instructions_en' => 'Read all conditions before answering.',
                 'content' => [
-                    'passage' => 'Si un número es primo Y mayor que 10, márcalo con X. Si es primo pero menor o igual a 10, márcalo con O. Si no es primo, ignóralo.',
-                    'question' => '¿Cómo marcas el número 13?',
+                    'passage' => 'Si un nÃºmero es primo Y mayor que 10, mÃ¡rcalo con X. Si es primo pero menor o igual a 10, mÃ¡rcalo con O. Si no es primo, ignÃ³ralo.',
+                    'question' => 'Â¿CÃ³mo marcas el nÃºmero 13?',
                     'options' => [
                         ['id' => 'a', 'text' => 'Con O', 'image_url' => null],
                         ['id' => 'b', 'text' => 'Con X', 'image_url' => null],
                         ['id' => 'c', 'text' => 'Lo ignoras', 'image_url' => null],
-                        ['id' => 'd', 'text' => 'Con ambos símbolos', 'image_url' => null],
+                        ['id' => 'd', 'text' => 'Con ambos sÃ­mbolos', 'image_url' => null],
                     ],
                 ],
                 'correct_answer' => ['correct_option_id' => 'b'],
@@ -1327,8 +1327,8 @@ class ActivitySeeder extends Seeder
                 'instructions_es' => 'Usa solo los datos relevantes para resolver.',
                 'instructions_en' => 'Use only the relevant data to solve.',
                 'content' => [
-                    'passage' => 'El tren A sale a las 9:00 y viaja a 80 km/h. El tren B sale a las 10:00 y viaja a 100 km/h. Ambos van a la misma ciudad a 200 km. La temperatura ese día era de 22 °C.',
-                    'question' => '¿A qué hora llega el tren A a su destino?',
+                    'passage' => 'El tren A sale a las 9:00 y viaja a 80 km/h. El tren B sale a las 10:00 y viaja a 100 km/h. Ambos van a la misma ciudad a 200 km. La temperatura ese dÃ­a era de 22 Â°C.',
+                    'question' => 'Â¿A quÃ© hora llega el tren A a su destino?',
                     'options' => [
                         ['id' => 'a', 'text' => '11:00', 'image_url' => null],
                         ['id' => 'b', 'text' => '11:30', 'image_url' => null],
@@ -1341,16 +1341,16 @@ class ActivitySeeder extends Seeder
             [
                 'domain' => 'attention', 'skill_name' => 'speed_accuracy', 'difficulty' => 3, 'grade_band' => 'upper',
                 'type' => 'tap_sequence',
-                'instructions_es' => 'Ordena los elementos por número atómico ascendente.',
+                'instructions_es' => 'Ordena los elementos por nÃºmero atÃ³mico ascendente.',
                 'instructions_en' => 'Order the elements by ascending atomic number.',
                 'content' => [
-                    'instructions' => 'Toca en orden de número atómico de menor a mayor.',
+                    'instructions' => 'Toca en orden de nÃºmero atÃ³mico de menor a mayor.',
                     'items' => [
                         ['id' => 'item_1', 'text' => 'Carbono (6)'],
                         ['id' => 'item_2', 'text' => 'Helio (2)'],
-                        ['id' => 'item_3', 'text' => 'Oxígeno (8)'],
-                        ['id' => 'item_4', 'text' => 'Hidrógeno (1)'],
-                        ['id' => 'item_5', 'text' => 'Nitrógeno (7)'],
+                        ['id' => 'item_3', 'text' => 'OxÃ­geno (8)'],
+                        ['id' => 'item_4', 'text' => 'HidrÃ³geno (1)'],
+                        ['id' => 'item_5', 'text' => 'NitrÃ³geno (7)'],
                     ],
                     'time_limit_seconds' => 20,
                 ],
@@ -1360,7 +1360,7 @@ class ActivitySeeder extends Seeder
             [
                 'domain' => 'reasoning', 'skill_name' => 'classification', 'difficulty' => 1, 'grade_band' => 'upper',
                 'type' => 'drag_to_sort',
-                'instructions_es' => 'Clasifica según tipo de razonamiento.',
+                'instructions_es' => 'Clasifica segÃºn tipo de razonamiento.',
                 'instructions_en' => 'Classify by type of reasoning.',
                 'content' => [
                     'instructions' => 'Arrastra cada concepto al tipo de razonamiento correcto.',
@@ -1368,11 +1368,11 @@ class ActivitySeeder extends Seeder
                         ['id' => 'item_1', 'text' => 'Ad hominem', 'image_url' => null],
                         ['id' => 'item_2', 'text' => 'Modus ponens', 'image_url' => null],
                         ['id' => 'item_3', 'text' => 'Pendiente resbaladiza', 'image_url' => null],
-                        ['id' => 'item_4', 'text' => 'Silogismo válido', 'image_url' => null],
+                        ['id' => 'item_4', 'text' => 'Silogismo vÃ¡lido', 'image_url' => null],
                     ],
                     'zones' => [
                         ['id' => 'zone_a', 'label' => 'Falacia'],
-                        ['id' => 'zone_b', 'label' => 'Razonamiento válido'],
+                        ['id' => 'zone_b', 'label' => 'Razonamiento vÃ¡lido'],
                     ],
                 ],
                 'correct_answer' => ['zones' => ['zone_a' => ['item_1', 'item_3'], 'zone_b' => ['item_2', 'item_4']]],
@@ -1380,14 +1380,14 @@ class ActivitySeeder extends Seeder
             [
                 'domain' => 'reasoning', 'skill_name' => 'analogies', 'difficulty' => 2, 'grade_band' => 'upper',
                 'type' => 'multiple_choice',
-                'instructions_es' => 'Completa la analogía conceptual.',
+                'instructions_es' => 'Completa la analogÃ­a conceptual.',
                 'instructions_en' => 'Complete the conceptual analogy.',
                 'content' => [
                     'passage' => null,
                     'question' => 'Feudalismo es a Edad Media, como Capitalismo es a ___.',
                     'options' => [
                         ['id' => 'a', 'text' => 'Edad Antigua', 'image_url' => null],
-                        ['id' => 'b', 'text' => 'Revolución Industrial', 'image_url' => null],
+                        ['id' => 'b', 'text' => 'RevoluciÃ³n Industrial', 'image_url' => null],
                         ['id' => 'c', 'text' => 'Prehistoria', 'image_url' => null],
                         ['id' => 'd', 'text' => 'Renacimiento', 'image_url' => null],
                     ],
@@ -1397,7 +1397,7 @@ class ActivitySeeder extends Seeder
             [
                 'domain' => 'reasoning', 'skill_name' => 'patterns', 'difficulty' => 1, 'grade_band' => 'upper',
                 'type' => 'multiple_choice',
-                'instructions_es' => 'Completa la progresión geométrica.',
+                'instructions_es' => 'Completa la progresiÃ³n geomÃ©trica.',
                 'instructions_en' => 'Complete the geometric progression.',
                 'content' => [
                     'passage' => null,
@@ -1414,16 +1414,16 @@ class ActivitySeeder extends Seeder
             [
                 'domain' => 'reasoning', 'skill_name' => 'cause_effect', 'difficulty' => 2, 'grade_band' => 'upper',
                 'type' => 'multiple_choice',
-                'instructions_es' => 'Identifica el efecto más probable a largo plazo.',
+                'instructions_es' => 'Identifica el efecto mÃ¡s probable a largo plazo.',
                 'instructions_en' => 'Identify the most likely long-term effect.',
                 'content' => [
-                    'passage' => 'Durante años, una empresa descargó residuos químicos en el río local. La concentración de toxinas aumentó gradualmente en el agua.',
-                    'question' => '¿Cuál sería el efecto más probable a largo plazo?',
+                    'passage' => 'Durante aÃ±os, una empresa descargÃ³ residuos quÃ­micos en el rÃ­o local. La concentraciÃ³n de toxinas aumentÃ³ gradualmente en el agua.',
+                    'question' => 'Â¿CuÃ¡l serÃ­a el efecto mÃ¡s probable a largo plazo?',
                     'options' => [
-                        ['id' => 'a', 'text' => 'El río se limpiaría solo de manera natural', 'image_url' => null],
-                        ['id' => 'b', 'text' => 'Las especies acuáticas disminuirían significativamente', 'image_url' => null],
-                        ['id' => 'c', 'text' => 'La empresa aumentaría su producción sin consecuencias', 'image_url' => null],
-                        ['id' => 'd', 'text' => 'El agua se volvería más cristalina con el tiempo', 'image_url' => null],
+                        ['id' => 'a', 'text' => 'El rÃ­o se limpiarÃ­a solo de manera natural', 'image_url' => null],
+                        ['id' => 'b', 'text' => 'Las especies acuÃ¡ticas disminuirÃ­an significativamente', 'image_url' => null],
+                        ['id' => 'c', 'text' => 'La empresa aumentarÃ­a su producciÃ³n sin consecuencias', 'image_url' => null],
+                        ['id' => 'd', 'text' => 'El agua se volverÃ­a mÃ¡s cristalina con el tiempo', 'image_url' => null],
                     ],
                 ],
                 'correct_answer' => ['correct_option_id' => 'b'],
@@ -1434,12 +1434,12 @@ class ActivitySeeder extends Seeder
                 'instructions_es' => 'Aplica el razonamiento deductivo.',
                 'instructions_en' => 'Apply deductive reasoning.',
                 'content' => [
-                    'passage' => 'Ningún reptil es de sangre caliente. La serpiente es un reptil.',
-                    'question' => '¿Qué se concluye lógicamente?',
+                    'passage' => 'NingÃºn reptil es de sangre caliente. La serpiente es un reptil.',
+                    'question' => 'Â¿QuÃ© se concluye lÃ³gicamente?',
                     'options' => [
                         ['id' => 'a', 'text' => 'Algunas serpientes son de sangre caliente', 'image_url' => null],
                         ['id' => 'b', 'text' => 'La serpiente no es de sangre caliente', 'image_url' => null],
-                        ['id' => 'c', 'text' => 'Los reptiles son una clase de mamíferos', 'image_url' => null],
+                        ['id' => 'c', 'text' => 'Los reptiles son una clase de mamÃ­feros', 'image_url' => null],
                         ['id' => 'd', 'text' => 'La serpiente puede regular su temperatura', 'image_url' => null],
                     ],
                 ],
@@ -1452,7 +1452,7 @@ class ActivitySeeder extends Seeder
                 'instructions_en' => 'Solve the problem applying percentages.',
                 'content' => [
                     'passage' => 'Una tienda ofrece un 20% de descuento. Una chaqueta cuesta $150 antes del descuento.',
-                    'question' => '¿Cuánto pagas por la chaqueta con el descuento?',
+                    'question' => 'Â¿CuÃ¡nto pagas por la chaqueta con el descuento?',
                     'options' => [
                         ['id' => 'a', 'text' => '$100', 'image_url' => null],
                         ['id' => 'b', 'text' => '$110', 'image_url' => null],
@@ -1464,26 +1464,3 @@ class ActivitySeeder extends Seeder
             ]
         ];
     }
-
-    // ===================================================================
-    // MATH DIAGNOSTICS — 3 per band (one per difficulty level)
-    // ===================================================================
-
-    private function mathDiagnosticActivities(): array
-    {
-        return [
-            // EARLY
-            ['domain'=>'math','skill_name'=>'number_sense','difficulty'=>1,'grade_band'=>'early','type'=>'multiple_choice','instructions_es'=>'Elige el numero que completa la secuencia.','instructions_en'=>'Choose the number that completes the sequence.','content'=>['passage'=>null,'question'=>'2, 4, 6, ___, 10','options'=>[['id'=>'a','text'=>'7','image_url'=>null],['id'=>'b','text'=>'8','image_url'=>null],['id'=>'c','text'=>'9','image_url'=>null],['id'=>'d','text'=>'5','image_url'=>null]]],'correct_answer'=>['correct_option_id'=>'b']],
-            ['domain'=>'math','skill_name'=>'addition_subtraction','difficulty'=>2,'grade_band'=>'early','type'=>'multiple_choice','instructions_es'=>'Lee y elige la respuesta correcta.','instructions_en'=>'Read and choose the correct answer.','content'=>['passage'=>'Ana tiene 15 galletas y le da 7 a su amigo.','question'=>'Cuantas galletas le quedan a Ana?','options'=>[['id'=>'a','text'=>'6','image_url'=>null],['id'=>'b','text'=>'8','image_url'=>null],['id'=>'c','text'=>'22','image_url'=>null],['id'=>'d','text'=>'9','image_url'=>null]]],'correct_answer'=>['correct_option_id'=>'b']],
-            ['domain'=>'math','skill_name'=>'place_value','difficulty'=>3,'grade_band'=>'early','type'=>'multiple_choice','instructions_es'=>'Lee el numero y responde.','instructions_en'=>'Read the number and answer.','content'=>['passage'=>null,'question'=>'Cuantas decenas tiene el numero 47?','options'=>[['id'=>'a','text'=>'7','image_url'=>null],['id'=>'b','text'=>'4','image_url'=>null],['id'=>'c','text'=>'47','image_url'=>null],['id'=>'d','text'=>'10','image_url'=>null]]],'correct_answer'=>['correct_option_id'=>'b']],
-            // MIDDLE
-            ['domain'=>'math','skill_name'=>'multiplication_division','difficulty'=>1,'grade_band'=>'middle','type'=>'multiple_choice','instructions_es'=>'Elige la respuesta correcta.','instructions_en'=>'Choose the correct answer.','content'=>['passage'=>null,'question'=>'6 x 7 = ___','options'=>[['id'=>'a','text'=>'36','image_url'=>null],['id'=>'b','text'=>'42','image_url'=>null],['id'=>'c','text'=>'48','image_url'=>null],['id'=>'d','text'=>'13','image_url'=>null]]],'correct_answer'=>['correct_option_id'=>'b']],
-            ['domain'=>'math','skill_name'=>'fractions','difficulty'=>2,'grade_band'=>'middle','type'=>'multiple_choice','instructions_es'=>'Lee y elige la fraccion correcta.','instructions_en'=>'Read and choose the correct fraction.','content'=>['passage'=>'Pedro comio 3 de las 8 piezas de una pizza.','question'=>'Que fraccion de la pizza comio Pedro?','options'=>[['id'=>'a','text'=>'1/3','image_url'=>null],['id'=>'b','text'=>'3/8','image_url'=>null],['id'=>'c','text'=>'5/8','image_url'=>null],['id'=>'d','text'=>'8/3','image_url'=>null]]],'correct_answer'=>['correct_option_id'=>'b']],
-            ['domain'=>'math','skill_name'=>'word_problems','difficulty'=>3,'grade_band'=>'middle','type'=>'multiple_choice','instructions_es'=>'Lee el problema y elige la respuesta correcta.','instructions_en'=>'Read the problem and choose the correct answer.','content'=>['passage'=>'Una escuela recibio 144 libros para repartir en 12 aulas por igual.','question'=>'Cuantos libros recibe cada aula?','options'=>[['id'=>'a','text'=>'10','image_url'=>null],['id'=>'b','text'=>'12','image_url'=>null],['id'=>'c','text'=>'14','image_url'=>null],['id'=>'d','text'=>'132','image_url'=>null]]],'correct_answer'=>['correct_option_id'=>'b']],
-            // UPPER
-            ['domain'=>'math','skill_name'=>'fractions','difficulty'=>1,'grade_band'=>'upper','type'=>'multiple_choice','instructions_es'=>'Elige la fraccion equivalente.','instructions_en'=>'Choose the equivalent fraction.','content'=>['passage'=>null,'question'=>'Cual fraccion es equivalente a 2/4?','options'=>[['id'=>'a','text'=>'1/4','image_url'=>null],['id'=>'b','text'=>'1/2','image_url'=>null],['id'=>'c','text'=>'3/4','image_url'=>null],['id'=>'d','text'=>'4/2','image_url'=>null]]],'correct_answer'=>['correct_option_id'=>'b']],
-            ['domain'=>'math','skill_name'=>'decimals','difficulty'=>2,'grade_band'=>'upper','type'=>'multiple_choice','instructions_es'=>'Compara los decimales y elige la respuesta correcta.','instructions_en'=>'Compare the decimals and choose the correct answer.','content'=>['passage'=>null,'question'=>'Cual es mayor: 3.07 o 3.7?','options'=>[['id'=>'a','text'=>'3.07','image_url'=>null],['id'=>'b','text'=>'3.7','image_url'=>null],['id'=>'c','text'=>'Son iguales','image_url'=>null],['id'=>'d','text'=>'No se puede comparar','image_url'=>null]]],'correct_answer'=>['correct_option_id'=>'b']],
-            ['domain'=>'math','skill_name'=>'data_interpretation','difficulty'=>3,'grade_band'=>'upper','type'=>'multiple_choice','instructions_es'=>'Lee los datos y responde.','instructions_en'=>'Read the data and answer.','content'=>['passage'=>'Grafica: Lunes=12, Martes=18, Miercoles=9, Jueves=21, Viernes=15 estudiantes.','question'=>'Cual es el promedio diario de asistencia?','options'=>[['id'=>'a','text'=>'13','image_url'=>null],['id'=>'b','text'=>'15','image_url'=>null],['id'=>'c','text'=>'17','image_url'=>null],['id'=>'d','text'=>'21','image_url'=>null]]],'correct_answer'=>['correct_option_id'=>'b']],
-        ];
-    }
-}

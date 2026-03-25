@@ -11,7 +11,9 @@ class DatabaseSeeder extends Seeder
         $this->call([
             SchoolSeeder::class,
             DomainSkillSeeder::class,
+            DomainMilestoneSeeder::class,
             ActivitySeeder::class,
+            ContentPackSeeder::class,
             BadgeSeeder::class,
             MissionSeeder::class,
             UserSeeder::class,

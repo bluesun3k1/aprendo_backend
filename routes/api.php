@@ -3,6 +3,7 @@
 use App\Http\Controllers\Auth\AuthController;
 use App\Http\Controllers\Student\CurriculumController;
 use App\Http\Controllers\Student\DashboardController;
+use App\Http\Controllers\Student\MilestoneController;
 use App\Http\Controllers\Student\DeviceTokenController;
 use App\Http\Controllers\Student\DiagnosticController;
 use App\Http\Controllers\Student\ProfileController;
@@ -68,6 +69,9 @@ Route::prefix('v1')->group(function () {
 
         // Rewards
         Route::get('rewards', [RewardsController::class, 'index']);
+
+        // Milestones
+        Route::get('milestones', [MilestoneController::class, 'index']);
 
         // Device token (push notifications — stubbed)
         Route::post('device-token', [DeviceTokenController::class, 'store']);

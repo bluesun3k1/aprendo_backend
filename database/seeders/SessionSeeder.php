@@ -41,7 +41,7 @@ use Illuminate\Support\Carbon;
  */
 class SessionSeeder extends Seeder
 {
-    private array $activityPool = [];
+    private \Illuminate\Support\Collection $activityPool;
 
     public function run(): void
     {
@@ -53,10 +53,10 @@ class SessionSeeder extends Seeder
 
         $this->activityPool = Activity::where('is_active', true)
             ->where('is_diagnostic', false)
-            ->get()
-            ->toArray();
+            ->with(['skill:id,domain_id'])
+            ->get();
 
-        if (count($this->activityPool) < 5) {
+        if ($this->activityPool->count() < 5) {
             $this->command->warn('SessionSeeder: Not enough activities. Run ActivitySeeder first.');
             return;
         }
@@ -121,7 +121,7 @@ class SessionSeeder extends Seeder
             'session_type'    => 'core',
             'sequence_number' => 5,
             'status'          => 'pending',
-            'domains'         => ['reading', 'attention', 'reasoning'],
+            'domains'         => ['reading', 'math'],
         ], 5, 0);
 
         // Bonus 1 — unlocked extra practice
@@ -188,7 +188,7 @@ class SessionSeeder extends Seeder
             'session_type'    => 'bonus',
             'sequence_number' => null,
             'status'          => 'pending',
-            'domains'         => ['reading'],
+            'domains'         => ['math'],
         ], 3, 0);
 
         // Review pack
@@ -282,9 +282,14 @@ class SessionSeeder extends Seeder
         int     $totalActivities,
         int     $completedCount
     ): StudentSession {
-        $activities = collect($this->activityPool)
-            ->shuffle()
-            ->take($totalActivities);
+        $domains = $attrs['domains'] ?? [];
+        $pool = !empty($domains)
+            ? $this->activityPool->filter(fn ($a) => in_array($a->skill?->domain_id, $domains))
+            : $this->activityPool;
+        if ($pool->count() < $totalActivities) {
+            $pool = $this->activityPool; // fallback: not enough domain-specific activities
+        }
+        $activities = $pool->shuffle()->take($totalActivities);
 
         $estimatedMinutes = max(5, $totalActivities * 2);
 
@@ -309,7 +314,7 @@ class SessionSeeder extends Seeder
         foreach ($activities->values() as $index => $actArr) {
             SessionActivity::create([
                 'session_id'  => $session->id,
-                'activity_id' => $actArr['id'],
+                'activity_id' => $actArr->id,
                 'order_index' => $index,
             ]);
         }
@@ -321,7 +326,7 @@ class SessionSeeder extends Seeder
                 \App\Models\Attempt::create([
                     'student_id'       => $student->id,
                     'session_id'       => $session->id,
-                    'activity_id'      => $actArr['id'],
+                    'activity_id'      => $actArr->id,
                     'response'         => ['chosen_option_id' => 'opt_a'],
                     'correct'          => true,
                     'score_delta'      => 10,

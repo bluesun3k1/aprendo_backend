@@ -18,12 +18,20 @@ class Badge extends Model
         'icon_url',
         'trigger_type',
         'trigger_config',
+        'category',
+        'sort_order',
+        'threshold_value',
+        'celebration_level',
+        'is_hidden',
     ];
 
     protected function casts(): array
     {
         return [
-            'trigger_config' => 'array',
+            'trigger_config'   => 'array',
+            'sort_order'       => 'integer',
+            'threshold_value'  => 'integer',
+            'is_hidden'        => 'boolean',
         ];
     }
 

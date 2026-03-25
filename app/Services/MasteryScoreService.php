@@ -100,6 +100,20 @@ class MasteryScoreService
                     : ($response['sequence'] ?? [])
             ) === ($correct['sequence'] ?? []),
 
+            // storybook_reading: same MC evaluation — correct_option_id
+            'storybook_reading' => (
+                isset($response['selected_option_id'])
+                    ? $response['selected_option_id']
+                    : ($response['chosen_option_id'] ?? null)
+            ) === ($correct['correct_option_id'] ?? null),
+
+            // story_strip_sequencing: same ordered-sequence evaluation as tap_sequence
+            'story_strip_sequencing' => (
+                isset($response['tapped_ids'])
+                    ? $response['tapped_ids']
+                    : ($response['sequence'] ?? [])
+            ) === ($correct['sequence'] ?? []),
+
             default => false,
         };
     }

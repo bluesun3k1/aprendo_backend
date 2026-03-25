@@ -7,6 +7,7 @@ use App\Models\Attempt;
 use App\Models\StudentSession;
 use App\Services\AdaptiveEngineService;
 use App\Services\MasteryScoreService;
+use App\Services\MilestoneUnlockService;
 use App\Services\RewardService;
 use App\Services\SessionQueueService;
 use App\Services\XpService;
@@ -16,11 +17,12 @@ use Illuminate\Http\Request;
 class SessionController extends Controller
 {
     public function __construct(
-        private readonly AdaptiveEngineService $adaptiveEngine,
-        private readonly MasteryScoreService   $masteryService,
-        private readonly RewardService         $rewardService,
-        private readonly XpService             $xpService,
-        private readonly SessionQueueService   $sessionQueueService,
+        private readonly AdaptiveEngineService  $adaptiveEngine,
+        private readonly MasteryScoreService    $masteryService,
+        private readonly MilestoneUnlockService $milestoneService,
+        private readonly RewardService          $rewardService,
+        private readonly XpService              $xpService,
+        private readonly SessionQueueService    $sessionQueueService,
     ) {}
 
     // -----------------------------------------------------------------------
@@ -143,8 +145,31 @@ class SessionController extends Controller
         // Store xp_earned on the session
         $session->update(['xp_earned' => $xpResult['xp_awarded']]);
 
+        // Update weekly mission progress with full session context
+        $sessionDomains   = $session->domains ?? [];
+        $completedMissions = $this->rewardService->updateMissions(
+            $student,
+            $correctCount,
+            $totalActivities,
+            $sessionDomains,
+            $streakDays
+        );
+
+        // Award XP bonus for each newly completed mission
+        $missionXpTotal = 0;
+        foreach ($completedMissions as $sm) {
+            $missionXp = $sm->mission->reward_xp ?? 0;
+            if ($missionXp > 0) {
+                $this->xpService->awardXp($student, $missionXp);
+                $missionXpTotal += $missionXp;
+            }
+        }
+
         // Check for new badges
         $this->rewardService->checkAndAwardBadges($student->fresh());
+
+        // Check for newly unlocked domain milestones (backfills any skipped thresholds)
+        $newMilestones = $this->milestoneService->checkAllDomains($student->fresh());
 
         // Check for grade-band advancement
         $freshStudent  = $student->fresh();
@@ -155,16 +180,44 @@ class SessionController extends Controller
         // unlocks next unit if threshold met, and refills upcoming sessions)
         $queueResult = $this->sessionQueueService->onSessionComplete($session, $freshStudent->fresh());
 
+        $milestonesOut = array_map(fn ($m) => [
+            'id'                => $m->id,
+            'domain_id'         => $m->domain_id,
+            'name'              => $m->name,
+            'description'       => $m->description,
+            'threshold'         => $m->threshold,
+            'icon'              => $m->icon,
+            'reward_xp'         => $m->reward_xp,
+            'celebration_level' => $m->celebration_level,
+        ], $newMilestones);
+
+        $missionsOut = array_map(fn ($sm) => [
+            'id'                => $sm->id,
+            'mission_id'        => $sm->mission_id,
+            'label'             => app()->getLocale() === 'en'
+                                    ? $sm->mission->label_en
+                                    : $sm->mission->label_es,
+            'category'          => $sm->mission->category,
+            'difficulty'        => $sm->mission->difficulty,
+            'reward_xp'         => $sm->mission->reward_xp,
+            'celebration_level' => $sm->mission->reward_xp >= 40 ? 'big'
+                                    : ($sm->mission->reward_xp >= 25 ? 'medium' : 'small'),
+            'completed_at'      => $sm->completed_at?->toIso8601String(),
+        ], $completedMissions);
+
         return response()->json([
-            'success'            => true,
-            'xp_awarded'         => $xpResult['xp_awarded'],
-            'new_level'          => $xpResult['new_level'],
-            'levelled_up'        => $xpResult['levelled_up'],
-            'streak_days'        => $streakDays,
-            'band_advanced'      => $bandAdvanced,
-            'placement_band'     => $placementBand,
-            'unit_completed'     => $queueResult['unit_completed'],
-            'next_unit_unlocked' => $queueResult['next_unit_unlocked'],
+            'success'             => true,
+            'xp_awarded'          => $xpResult['xp_awarded'],
+            'new_level'           => $xpResult['new_level'],
+            'levelled_up'         => $xpResult['levelled_up'],
+            'streak_days'         => $streakDays,
+            'band_advanced'       => $bandAdvanced,
+            'placement_band'      => $placementBand,
+            'unit_completed'      => $queueResult['unit_completed'],
+            'next_unit_unlocked'  => $queueResult['next_unit_unlocked'],
+            'milestones_unlocked' => $milestonesOut,
+            'missions_completed'  => $missionsOut,
+            'missions_xp_awarded' => $missionXpTotal,
         ]);
     }
 
