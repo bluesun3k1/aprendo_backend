@@ -54,7 +54,7 @@ class RewardsController extends Controller
                 'earned_at'         => null,
             ]);
 
-        $allBadges = $earnedBadges->merge($unearnedBadges)
+        $allBadges = $earnedBadges->concat($unearnedBadges)
             ->sortBy('sort_order')
             ->values();
 
